@@ -8,9 +8,9 @@ int ordenado=0;
 typedef struct TProduto{
     long int codigo;
     int grupo;
-    char desc[100];
-    char unidade[15];
-    char fonecedor[30];
+    char desc[41];
+    char unidade[3];
+    char fonecedor[41];
     float quantidade;
     float prCompra;
     float prVenda;
@@ -21,12 +21,14 @@ typedef struct TProduto{
 void leitura(Tproduto estoque[], int *tamanho);
 void grav(Tproduto estoque[], int tamanho);
 void excl(Tproduto estoque[], int tamanho);
+void alterar(Tproduto estoque[], int tamanho);
 int pesquisabi(Tproduto estoque[], int chave, int tamanho);
 int vazio (int tamanho);
 void ordena(Tproduto estoque[], int tamanho);
 void inclusao(Tproduto estoque[],int *tamanho);
 void relatorioGeral (Tproduto estoque[], int tamanho);
-void ;
+void estoqueBaixo (Tproduto estoque[], int tamanho);
+void aumentoPrec (Tproduto estoque[]. int tamanho);
 
 int main(){
 	Tproduto estoque[MAX];
@@ -52,15 +54,17 @@ int main(){
 				break;
 			}        	
             case 2:{
-				relatorioGeral (estoque, tamanho);
+                inclusao(estoque, &tamanho);
+                alterar(estoque, tamanho);
 				break;
 			}
             case 3:{
-
+                inclusao(estoque, &tamanho);
+                excl(estoque, tamanho);
                 break;
             }
             case 4:{
-                pesquisabi(estoque, chave, tamanho);
+                pesquisabi(estoque, tamanho);
                 break;
             }
             case 5:{
@@ -121,8 +125,12 @@ void gravacao(Tproduto estoque[], int tamanho){
 
 void excl(Tproduto estoque[], int tamanho){
     FILE *arquivo;
-
+    int i;
     arquivo= fopen("estoque.dat", "w+b");
+    if (!arquivo){
+            printf ("Erro ao abrir o arquivo!");
+            return;
+    }
 
     int codigo;
     int indice = -1;
@@ -130,19 +138,18 @@ void excl(Tproduto estoque[], int tamanho){
     printf ("Digite o código do produto a ser excluído: ");
     scanf ("%d", &codigo);
 
-    for (int i = 0; i < tamanho; i++) {
-        if (codigos[i] == codigo) {
-            indice = i;
+    for (i = 0; i < tamanho; i++) {
+        if (codigos[i] == codigo) {;
             break;
         }
     }
 
-    if (indice == -1) {
+    if (i == -1) {
         printf ("Produto não encontrado.\n");
         return;
     }
 
-    for (int i = indice; i < tamanho - 1; i++) {
+    for (i = indice; i < tamanho - 1; i++) {
         codigos[i] = codigos[i + 1];
         strcpy(nomes[i], nomes[i + 1]);
         precos[i] = precos[i + 1];
