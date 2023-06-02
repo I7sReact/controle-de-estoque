@@ -12,6 +12,7 @@ typedef struct TProduto{
     char unidade[3];
     char fonecedor[41];
     float quantidade;
+    char validade[10];
     float prCompra;
     float prVenda;
     int lucro;
@@ -28,7 +29,8 @@ void ordena(Tproduto estoque[], int tamanho);
 void inclusao(Tproduto estoque[],int *tamanho);
 void relatorioGeral (Tproduto estoque[], int tamanho);
 void estoqueBaixo (Tproduto estoque[], int tamanho);
-void aumentoPrec (Tproduto estoque[]. int tamanho);
+void aumentoPrec (Tproduto estoque[], int tamanho);
+void validade(Tproduto estoque[], int tamanho);
 
 int main(){
 	Tproduto estoque[MAX];
@@ -79,12 +81,16 @@ int main(){
 
                 break;
             }
+            case 8:{
+
+                break;
+            }
             case 0: 
 				printf("Obrigado por usar nosso sistema.\n");
 				system("pause");
 				exit(0);
 				break;
-            default: printf("OPCAO INVALIDA!\n");
+            default: printf("OPÇÃO INVALIDA!\n");
             	system("pause");
             	system("clear");
         }
@@ -117,12 +123,34 @@ void gravacao(Tproduto estoque[], int tamanho){
   		printf("Erro ao abrir arquivo!");
   		return;
   	}
+
+    printf("Digite o código do produto: ");
+    scanf("%ld", & Tproduto.codigo);
+    printf("Digite o número do grupo: ");
+    scanf("%d", & Tproduto.grupo);
+    printf("Digite a descrição do produto: ");
+    gets(Tproduto.desc);
+    printf("Digite o a quantidade de unidades desse produto: ");
+    gets(Tproduto.unidade);
+    printf("")
+
     for(i=0;i<tamanho;i++)  
        fwrite(&estoque[i], sizeof(Tproduto), 1, arquivo);
 	fclose(arquivo);
 	return;
 }
 
+void alterar(Tproduto estoque[], int tamanho){
+    FILE *arquivo;
+    int i;
+    arquivo= fopen("estoque.dat", "w+b");
+    arquivo= fopen("estoque.dat", "w+b"); 
+  	if (!arquivo){
+  		printf("Erro ao abrir arquivo!");
+  		return;
+  	}
+
+}
 void excl(Tproduto estoque[], int tamanho){
     FILE *arquivo;
     int i;
@@ -153,9 +181,12 @@ void excl(Tproduto estoque[], int tamanho){
         codigos[i] = codigos[i + 1];
         strcpy(nomes[i], nomes[i + 1]);
         precos[i] = precos[i + 1];
+        write(&estoque[i], sizeof(Tproduto), 1, arquivo);
     }
 
     numProdutos--;
+    fclose(arquivo);
+	return;
 
     printf("PRODUTO EXCLUÍDO COM SUCESSO!\n");
 }
@@ -259,4 +290,13 @@ void relatorioGeral (Tproduto estoque[], int tamanho){
     printf("APERTE ENTER PARA VOLTAR AO MENU");
     getchar();
     system("clear");
+}
+
+void estoqueBaixo(Tproduto estoque[], int tamanho){
+
+}
+
+void aumentoPrec(Tproduto estoque[], int tamanho){
+
+
 }
