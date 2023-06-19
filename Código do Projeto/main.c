@@ -87,6 +87,8 @@ void relatorioLista(Tproduto estoque[], int indice);
 
 void menuAltVal(Tproduto estoque[], int tamanho);
 
+void funcAlt(Tproduto estoque[], int tamanho);
+
 // Função principal
 int main(){
 	
@@ -100,17 +102,18 @@ int main(){
     leitura(estoque, &tamanho);// abre o arquivo da base de dados
     do{
         printf("Hoje é: %d/%d/%d\n", data->tm_mday, data->tm_mon + 1, data->tm_year + 1900);
-        printf (" 1 - CADASTRAR\n");
-        printf (" 2 - ALTERAR\n");
-        printf (" 3 - EXCLUIR\n");
-        printf (" 4 - PESQUISAR\n");
-    	printf (" 5 - RELATÓRIO GERAL\n");
-    	printf (" 6 - RELATÓRIOS ESPECIAIS \n");
-        printf (" 0 - SAIR\n");
-        printf ("\nESCOLHA A OPÇÃO DESEJADA:\n");
-        scanf ("%d",&opc);
+        printf("================================\n");
+        printf(" 1 - CADASTRAR\n");
+        printf(" 2 - ALTERAR\n");
+        printf(" 3 - EXCLUIR\n");
+        printf(" 4 - PESQUISAR\n");
+    	printf(" 5 - RELATÓRIO GERAL\n");
+    	printf(" 6 - RELATÓRIOS ESPECIAIS \n");
+        printf(" 0 - SAIR\n");
+        printf("\nESCOLHA A OPÇÃO DESEJADA:\n");
+        scanf("%d",&opc);
         system("clear");
-        switch (opc){
+        switch(opc){
             case 1:
             	inclusao(estoque, &tamanho);
             	grav(estoque, tamanho);
@@ -249,7 +252,7 @@ void inclusao(Tproduto estoque[], int* tamanho){
     }
 
     do {
-        printf("Nome do produto: ");
+        printf("\nNome do produto: ");
         fgets(aux.nome, sizeof(aux.nome), stdin);
         fflush(stdin);
         aux.nome[strcspn(aux.nome, "\n")] = '\0';
@@ -260,7 +263,7 @@ void inclusao(Tproduto estoque[], int* tamanho){
     } while (aux.nome[0] == '\0');
 
     do {
-        printf("Descrição do produto: ");
+        printf("\nDescrição do produto: ");
         fgets(aux.desc, sizeof(aux.desc), stdin);
         fflush(stdin);
         aux.desc[strcspn(aux.desc, "\n")] = '\0';
@@ -271,7 +274,7 @@ void inclusao(Tproduto estoque[], int* tamanho){
     } while (aux.desc[0] == '\0');
 
     do {
-        printf("Fornecedor do produto: ");
+        printf("\nFornecedor do produto: ");
         fgets(aux.fornecedor, sizeof(aux.fornecedor), stdin);
         fflush(stdin);
         aux.fornecedor[strcspn(aux.fornecedor, "\n")] = '\0';
@@ -281,7 +284,7 @@ void inclusao(Tproduto estoque[], int* tamanho){
     } while (aux.fornecedor[0] == '\0');
 
     do {
-        printf("Estoque minimo do produto: ");
+        printf("\nEstoque minimo do produto: ");
         scanf("%d", &aux.estoqueMin);
         fflush(stdin);
     } while (aux.estoqueMin < 0);
@@ -301,14 +304,14 @@ void inclusao(Tproduto estoque[], int* tamanho){
     } while (aux.grupo != 1 && aux.grupo != 2 && aux.grupo != 3);
 
     do {
-        printf("Quantidade do produto: ");
+        printf("\nQuantidade do produto: ");
         scanf("%d", &aux.quantidade);
         fflush(stdin);
     } while (aux.quantidade < 0);
 
     do
     {
-        printf("Unidade do Produto (UN ou LT): ");
+        printf("\nUnidade do Produto (UN ou LT): ");
         fgets(aux.unidade, sizeof(aux.unidade), stdin);
         fflush(stdin);
         aux.unidade[strcspn(aux.unidade, "\n")] = '\0';
@@ -319,21 +322,21 @@ void inclusao(Tproduto estoque[], int* tamanho){
     } while (strcmp(aux.unidade, "UN") != 0 && strcmp(aux.unidade, "LT") != 0);
 
     do {
-        printf("Preco de compra do produto: R$");
+        printf("\nPreço de compra do produto: R$");
         scanf("%f", &aux.prCompra);
         fflush(stdin);
     } while (aux.prCompra < 0);
 
     do
     {
-        printf("Valor do Lucro minimo por produto: R$");
+        printf("\nValor do Lucro minimo por produto: R$");
         scanf("%f", &aux.lucro);
         fflush(stdin);
     } while (aux.lucro < 0);
 
     do
     {
-        printf("Preco de venda do produto: R$");
+        printf("\nPreco de venda do produto: R$");
         scanf("%f", &aux.prVenda);
         fflush(stdin);
     } while (aux.prVenda < 0);
@@ -431,6 +434,10 @@ void relatorioGeral(Tproduto estoque[], int tamanho){
 
 void alteracao(Tproduto estoque[], int tamanho){
     if (vazio(tamanho)) {
+    	printf("\nAPERTE ENTER PARA VOLTAR AO MENU");
+	    fflush(stdin);
+	    getchar();
+	    system("clear");
         return;
     }
 
@@ -443,9 +450,16 @@ void alteracao(Tproduto estoque[], int tamanho){
     posicao = pesqbin(estoque, codigo, tamanho);
 
     if (posicao == -1) {
-        printf("Produto não encontrado!\n");
+        printf("Produto nao encontrado!\n");
+        printf("\nAPERTE ENTER PARA VOLTAR AO MENU");
+	    fflush(stdin);
+	    getchar();
+	    system("clear");
         return;
     }
+
+    
+
     switch(opc){
     case 1:
         printf("Digite o novo grupo ao qual o produto pertence: ");
@@ -492,6 +506,9 @@ void alteracao(Tproduto estoque[], int tamanho){
     case 10:
         menuAltVal(estoque, tamanho);
         break;
+    case 11:
+        funcAlt(estoque, tamanho);
+        break;
     case 0:
         return;
         break;
@@ -499,10 +516,21 @@ void alteracao(Tproduto estoque[], int tamanho){
         printf("OPÇÃO INVÁLIDA!!\n\n");
         system("clear");
     }
+
+    printf("\nProduto modificado com sucesso!\n");
+    printf("\nAPERTE ENTER PARA VOLTAR AO MENU");
+    fflush(stdin);
+    getchar();
+    system("clear");
+    return;
 }
 
 void exclusao(Tproduto estoque[], int* tamanho) {
     if (vazio(*tamanho)) {
+    	printf("\nAPERTE ENTER PARA VOLTAR AO MENU");
+	    fflush(stdin);
+	    getchar();
+	    system("clear");
         return;
         
     }
@@ -517,6 +545,10 @@ void exclusao(Tproduto estoque[], int* tamanho) {
 
     if (posicao == -1) {
         printf("Produto nao encontrado!\n");
+        printf("\nAPERTE ENTER PARA VOLTAR AO MENU");
+	    fflush(stdin);
+	    getchar();
+	    system("clear");
         return;
     }
 
@@ -534,6 +566,10 @@ void exclusao(Tproduto estoque[], int* tamanho) {
 
 void consulta(Tproduto estoque[], int tamanho) {
     if (vazio(tamanho)) {
+    	printf("\nAPERTE ENTER PARA VOLTAR AO MENU");
+	    fflush(stdin);
+	    getchar();
+	    system("clear");
         return;
     }
 
@@ -547,8 +583,13 @@ void consulta(Tproduto estoque[], int tamanho) {
 
     if (posicao == -1) {
         printf("Produto nao encontrado!\n");
+        printf("\nAPERTE ENTER PARA VOLTAR AO MENU");
+	    fflush(stdin);
+	    getchar();
+	    system("clear");
         return;
     }
+
     printf("\n--------------------------------------------------------------------------\n");
     printf("Codigo: %ld\n", estoque[posicao].codigo);
     printf("Grupo: %d\n", estoque[posicao].grupo);
@@ -563,6 +604,12 @@ void consulta(Tproduto estoque[], int tamanho) {
     printf("Data de validade: %d/%d/%d\n", estoque[posicao].dataVencido.tm_mday, \
     estoque[posicao].dataVencido.tm_mon, estoque[posicao].dataVencido.tm_year);
     printf("--------------------------------------------------------------------------\n");
+
+    printf("\nAPERTE ENTER PARA VOLTAR AO MENU");
+    fflush(stdin);
+    getchar();
+    system("clear");
+    return;
 }
 
 void relatorioEstoqueMin(Tproduto estoque[], int tamanho){
@@ -614,8 +661,7 @@ void relatorioEstoqueMin(Tproduto estoque[], int tamanho){
     return;
 }
 
-void aumentoForn(Tproduto estoque[], int tamanho)
-{
+void aumentoForn(Tproduto estoque[], int tamanho){
 
     char fornecedor[50];
     float percentualReajuste;
@@ -681,7 +727,7 @@ struct tm *data;
     time(&diaH);
     data = localtime(&diaH);
     
-if (tamanho == 0) {
+if (tamanho == 0){
         printf("Estoque vazio!\n");
         return;
     }
@@ -691,8 +737,7 @@ if (tamanho == 0) {
 
     printf("Produtos que passaram da válidade:\n");
 
-    for (i = 0; i < tamanho; i++) 
-    {
+    for (i = 0; i < tamanho; i++){
         if(estoque[i].dataVencido.tm_mday < data->tm_mday \
         && estoque[i].dataVencido.tm_mon < data->tm_mon + 1\
         && estoque[i].dataVencido.tm_year < data->tm_year + 1900 \
@@ -716,8 +761,7 @@ if (tamanho == 0) {
         }
     }
 
-    if (encontrados == 0) 
-    {
+    if (encontrados == 0){
         printf("Nenhum produto com quantidade em estoque abaixo do mínimo.\n");
     }
 
@@ -791,7 +835,7 @@ void menuAltVal(Tproduto estoque[], int tamanho){
 
             break;
         case 4:
-
+            conseguirTempoValidade();
             break;
         default:
             printf("OPÇÃO INVÁLIDA!!\n\n");
@@ -802,10 +846,50 @@ void relatorioLista(Tproduto estoque[], int indice) {
     printf("%ld\t\t\t\t%.2f\n", estoque[indice].codigo, estoque[indice].prVenda);
 }
 
+void funcAlt(Tproduto estoque[], int tamanho){
+    
+    int posicao;
+
+    printf("Digite o novo grupo ao qual o produto pertence: ");
+    scanf("%d", &estoque[posicao].grupo);
+    
+    printf("Digite a nova descrição do produto: ");
+    fflush(stdin);
+    fgets(estoque[posicao].desc, 41, stdin);
+    estoque[posicao].desc[strcspn(estoque[posicao].desc, "\n")] = '\0';
+
+    printf("Digite a nova unidade de medida: ");
+    fflush(stdin);
+    fgets(estoque[posicao].unidade, 3, stdin);
+    estoque[posicao].unidade[strcspn(estoque[posicao].unidade, "\n")] = '\0';
+
+    printf("Digite o novo nome do fornecedor do produto: ");
+    fflush(stdin);
+    fgets(estoque[posicao].fornecedor, 41, stdin);
+    estoque[posicao].fornecedor[strcspn(estoque[posicao].fornecedor, "\n")] = '\0';
+
+    printf("Digite a nova quantidade do produto em estoque: ");
+    scanf("%d", &estoque[posicao].quantidade);
+
+    printf("Digite o novo preco de compra do produto: ");
+    scanf("%f", &estoque[posicao].prCompra);
+
+    printf("Digite o novo preco de venda do produto: ");
+    scanf("%f", &estoque[posicao].prVenda);
+
+    printf("Digite a nova margem de lucro minima: ");
+    scanf("%f", &estoque[posicao].lucro);
+
+    printf("Digite a nova quantidade minima em estoque: ");
+    scanf("%d", &estoque[posicao].estoqueMin);
+
+    menuAltVal(estoque, tamanho);
+}
+
 int dataVal(struct tm dataV) {
     // Checar se a data é valida
     if (dataV.tm_year < 1900){
-        printf("DATA INVÁLIDA\n!!");
+        printf("DATA INVÁLIDA!!\n");
         return 0;
     }
     if (dataV.tm_mon < 1 || dataV.tm_mon > 12){
