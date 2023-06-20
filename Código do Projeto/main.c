@@ -1,8 +1,6 @@
 // Douglas Nascimento
-// André 
-// Pablo
-
-
+// André Henrique Fiatkoski Lustosa
+// Pablo Celestino da Rocha Lobo
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,421 +8,448 @@
 #include <time.h>
 #include <ctype.h>
 
-const int MAX = 50; // Limitando o tamanho do vetor
-int ordenado = 0;   // Variável para controlar a ordenação dos dados
+const int MAX = 50; // Limiting the array size
+int sortData = 0;   // Variable to sort the data
 
-// Tipo de dado especial (Registro)
-typedef struct TProduto{
-    long int codigo;
-    char nome[41];
-    int quantidade;
-    float prCompra;
-    int grupo;
-    char desc[41];
-    char unidade[3];
-    char fornecedor[41];
-    float prVenda;
-    float lucro ;
-    int estoqueMin;
-    struct tm dataVencido;
-} Tproduto;
+// Type of a special data (Resgistry)
+typedef struct Tproduct{
+    long int productCode;
+    char name[41];
+    int productQuantity;
+    float productBuyPrice;
+    int productGroup;
+    char productDescription[41];
+    char productUnit[3];
+    char productSupplier[41];
+    float productSellPrice;
+    float productMinimalProfit ;
+    int inventoryMin;
+    struct tm expiredDate;
+} Tproduct;
 
-int dataVal(struct tm dataV);
+// Function for validating the expiring date
+int dateExp(struct tm dateE);
 
-struct tm conseguirTempoValidade(){
-    struct tm dataV;
+// Substitute for fflush(stdin)
+void cleanStdin(void);
+
+// Struct for adding a expiration date for a product
+struct tm getExpiredDate(){
+    struct tm dateE;
     do {
-        printf("Data de validade do produto.\n");
-        printf("Dia: ");
-        scanf("%d", &dataV.tm_mday);
-        printf("Mês: ");
-        scanf("%d", &dataV.tm_mon);
-        printf("Ano: ");
-        scanf("%d", &dataV.tm_year);
-    } while (!dataVal(dataV));
-    return dataV;
+        printf("Expiring date of a product.\n");
+        printf("Day: ");
+        scanf("%d", &dateE.tm_mday);
+        printf("Mounth: ");
+        scanf("%d", &dateE.tm_mon);
+        printf("Year: ");
+        scanf("%d", &dateE.tm_year);
+        cleanStdin();
+    } while (!dateExp(dateE));
+    return dateE;
 }
 
-// Função para leitura dos dados do arquivo
-void leitura(Tproduto estoque[], int *tamanho);
+// Function for the reading of the inventory.dat file
+void readFile(Tproduct inventory[], int *size);
 
-// Função para gravação dos dados no arquivo
-void grav(Tproduto estoque[], int tamanho);
+// Function for writing to the inventory.dat file
+void writeFile(Tproduct inventory[], int size);
 
-// Função de pesquisa binária
-int pesqbin(Tproduto estoque[], int chave, int tamanho);
+// Function for binary search
+int binarySearch(Tproduct inventory[], int key, int size);
 
-// Função auxiliar para verificar se o vetor está vazio
-int vazio(int tamanho);
+// Auxiliary function to verifie if the array is empty
+int null(int size);
 
-// Função para ordenar o vetor de produtos por código
-void ordena(Tproduto estoque[], int tamanho);
+// Function to sort the products array per product code
+void sortProduct(Tproduct inventory[], int size);
 
-// Função para inclusão de um novo produto
-void inclusao(Tproduto estoque[], int *tamanho);
+// Function to add a new product
+void addProdutct(Tproduct inventory[], int *size);
 
-// Função para exibir o relatório geral de produtos
-void relatorioGeral(Tproduto estoque[], int tamanho);
+// Function to exhibit the general report of registered products
+void generalReport(Tproduct inventory[], int size);
 
-// Função para realizar a alteração de um produto existente
-void alteracao(Tproduto estoque[], int tamanho);
+// Function to make a change in a alredy existing product
+void changeProduct(Tproduct inventory[], int size);
 
-// Função para excluir um produto do estoque
-void exclusao(Tproduto estoque[], int *tamanho);
+// Function to delete a product from the inventary
+void deleteProduct(Tproduct inventory[], int *size);
 
-// Função para realizar uma consulta de um produto
-void consulta(Tproduto estoque[], int tamanho);
+// Function to search for a specific product
+void consultProduct(Tproduct inventory[], int size);
 
-void menuEsp();
+// Function for menu of special reports
+void espMenu();
 
-void venc(Tproduto estoque[], int tamanho);
+// Funtion to show a report of expired products
+void expired(Tproduct inventory[], int size);
 
-void aumentoForn(Tproduto estoque[], int tamanho);
+// Funtion to increase the buy price of products from a specific supplier
+void increaseSupplierPrices(Tproduct inventory[], int size);
 
-void relatorioEstoqueMin(Tproduto estoque[], int tamanho);
+// Function to show a report of products that are bellow the minimal\
+ quantity in the inventory
+void reportMinimalInventory(Tproduct inventory[], int size);
 
-void relatorioLista(Tproduto estoque[], int indice);
+void listReport(Tproduct inventory[], int index);
 
-void menuAltVal(Tproduto estoque[], int tamanho);
+// Function to change the expiration dates of a specific product
+void changeExpiredMenu(Tproduct inventory[], int size);
 
-void funcAlt(Tproduto estoque[], int tamanho);
+// Function to change all values of a specific product
+void changeFunction(Tproduct inventory[], int size);
 
-// Função principal
+
+// Main function
 int main(){
 	
-	Tproduto estoque[MAX];
-    struct tm *data;
-    time_t diaHoje;
-    time(&diaHoje);
-    data = localtime(&diaHoje);
-    int tamanho=0, opc;
-
-    leitura(estoque, &tamanho);// abre o arquivo da base de dados
+	Tproduct inventory[MAX];
+    struct tm *date;
+    time_t dayToday;
+    time(&dayToday);
+    date = localtime(&dayToday);
+    int size=0, opt;
+    // Open the file of the data base
+    readFile(inventory, &size);
     do{
-        printf("Hoje é: %d/%d/%d\n", data->tm_mday, data->tm_mon + 1, data->tm_year + 1900);
+        printf("Today is: %d/%d/%d\n", date->tm_mday, date->tm_mon + 1, \
+        date->tm_year + 1900);
         printf("================================\n");
-        printf(" 1 - CADASTRAR\n");
-        printf(" 2 - ALTERAR\n");
-        printf(" 3 - EXCLUIR\n");
-        printf(" 4 - PESQUISAR\n");
-    	printf(" 5 - RELATÓRIO GERAL\n");
-    	printf(" 6 - RELATÓRIOS ESPECIAIS \n");
-        printf(" 0 - SAIR\n");
-        printf("\nESCOLHA A OPÇÃO DESEJADA:\n");
-        scanf("%d",&opc);
+        printf(" 1 - REGISTER PRODUCT\n");
+        printf(" 2 - CHANGE PRODUCT DETAILS\n");
+        printf(" 3 - DELETE PRODUCT\n");
+        printf(" 4 - SEARCH PRODUCT\n");
+    	printf(" 5 - GENERAL REPORT\n");
+    	printf(" 6 - SPECIAL REPORTS\n");
+        printf(" 0 - EXIT\n");
+        printf("\nCHOOSE THE DESIRED OPTION:\n");
+        scanf("%d",&opt);
         system("clear");
-        switch(opc){
+        switch(opt){
             case 1:
-            	inclusao(estoque, &tamanho);
-            	grav(estoque, tamanho);
+            	addProdutct(inventory, &size);
+            	writeFile(inventory, size);
 				break;
 			case 2 :
-				alteracao(estoque, tamanho);
-                grav(estoque, tamanho);
+				changeProduct(inventory, size);
+                writeFile(inventory, size);
 				break;
 			case 3 :
-				exclusao(estoque, &tamanho);
-                grav(estoque, tamanho);
+				deleteProduct(inventory, &size);
+                writeFile(inventory, size);
 				break;
 			case 4 :
-				consulta(estoque, tamanho);
+				consultProduct(inventory, size);
 				break;
             case 5:
-            	relatorioGeral(estoque,  tamanho);
+            	generalReport(inventory,  size);
 				break;
 			case 6:
-				menuEsp();		
+				espMenu();		
 		    	break;
             case 0:
+                printf("Thanks for using our software!!\n");
                 exit(0);
             default:
-                printf("OPÇÃO INVÁLIDA!!\n\n");
+                printf("INVALID OPTION!!\n\n");
                 system("clear");
 			}
 				
-			}while (opc!=0);
-			    grav(estoque, tamanho);// grava após realizada as operações
-				return 0;
+    }while(opt!=0);
+        // Writing to the file after finishing the \
+                opperation
+		writeFile(inventory, size);
+	return 0;
 				
 }
 
-void leitura(Tproduto estoque[], int *tamanho)
-{
-    FILE *arquivo;
-  	arquivo= fopen("estoque.dat", "a+b");	   // abrimos para anexar, binário
-  	if (!arquivo){
-  		printf("Erro ao abrir arquivo!");
+void readFile(Tproduct inventory[], int *size){
+    FILE *file;
+  	file = fopen("inventory.dat", "a+b");
+    // Open to attach to the file
+  	if (!file){
+  		printf("Error to open file!");
   		return;
   	}
-//le os dados do arquivo
-    while(!feof(arquivo)){
-       fread (&estoque[*tamanho], sizeof (Tproduto) , 1, arquivo);
-       (*tamanho)++;
+    // Read the data of the file
+    while(!feof(file)){
+       fread (&inventory[*size], sizeof (Tproduct) , 1, file);
+       (*size)++;
     }
-	(*tamanho)--;
-//fecha o arquivo
-	fclose(arquivo);
+	(*size)--;
+    // Close the file
+	fclose(file);
 	return;
 }
 
-void grav(Tproduto estoque[], int tamanho){
-    FILE *arquivo;
+void writeFile(Tproduct inventory[], int size){
+    FILE *file;
     int i;
-    arquivo= fopen("estoque.dat", "w+b");	   // Abre e apaga o conteúdo do arquivo,binário
-  	if (!arquivo){
-  		printf("Erro ao abrir arquivo!");
+    file = fopen("inventory.dat", "w+b");	   
+    // Open and erase the contents of the file
+  	if (!file){
+  		printf("Error while opening the file!\n");
   		return;
   	}
-// grava a estrutura no arquivo
-    for(i=0;i<tamanho;i++)  
-       fwrite(&estoque[i], sizeof(Tproduto), 1, arquivo);       // Fecha o arquivo de dados
-	fclose(arquivo);
+    // Write the stucture to the file
+    for(i = 0;i < size;i++){
+        fwrite(&inventory[i], sizeof(Tproduct), 1, file);   
+    }
+    // Close the data file
+	fclose(file);
 	return;
 }
 
-int pesqbin(Tproduto estoque[], int chave, int tamanho){
-    if(vazio(tamanho))
-       return -1;                                               // Vetor vazio       
-    if (! ordenado){
-        ordena(estoque,tamanho);                                // Ordena
-        ordenado=1;                                             // Variável global
+int binarySearch(Tproduct inventory[], int key, int size){
+    // Null array
+    if(null(size))
+       return -1;                                                     
+    if (!sortData){
+        // Sort products
+        sortProduct(inventory,size);   
+        // Global variable                             
+        sortData = 1;                                            
     }
-    int inicio=0,final=tamanho, meio;
-    while (inicio<=final){
-        meio=(int)(inicio+final)/2;
-        if (estoque[meio].codigo==chave)
-           return meio;                                         // Encontrou
-        if (estoque[meio].codigo<chave)
-           inicio=meio+1;
+    // Found the product
+    int start = 0,end = size, middle;
+    while (start <= end){
+        middle = (int)(start+end) / 2;
+        if(inventory[middle].productCode == key)
+           return middle;                                      
+        if(inventory[middle].productCode < key)
+           start = middle+1;
         else
-           final=meio-1;
+           end = middle-1;
     }
-    return -1;                                                  // Não encontrou
+    // Did not find the product
+    return -1;                                                  
 }
 
-int vazio(int tamanho)
-{
-     if(tamanho==0){
-        printf("\nREGISTRO VAZIO!\n");
-        printf("\nAPERTE ENTER PARA VOLTAR AO MENU");
-        fflush(stdin);
-        getchar();
-        system("clear");
-        return 1;// Vazio
+int null(int size){
+    // Null
+     if(size==0){
+        printf("\nEMPTY REGISTRY!\n");
+        return 1;
      }
-     return 0;// Preenchido
+     // Filled in
+     return 0;
 }
 
-void ordena(Tproduto estoque[], int tamanho)
-{
+void sortProduct(Tproduct inventory[], int size){
 	int i,j;
-    Tproduto aux;
-    for(i=0;i<tamanho-1;i++)
-        for(j=i+1;j<tamanho;j++)
-          	if (estoque[i].codigo>estoque[j].codigo){
-              	aux=estoque[i];
-              	estoque[i]=estoque[j];
-              	estoque[j]=aux;
+    Tproduct aux;
+    for(i=0;i<size-1;i++)
+        for(j=i+1;j<size;j++)
+          	if (inventory[i].productCode > inventory[j].productCode){
+              	aux=inventory[i];
+              	inventory[i]=inventory[j];
+              	inventory[j]=aux;
             }
 }
 
-void inclusao(Tproduto estoque[], int* tamanho){
-    if (*tamanho == MAX) {
-        printf("\nERRO!\nARQUIVO CHEIO.\n");
+void addProdutct(Tproduct inventory[], int* size){
+    if(*size == MAX){
+        printf("\nERROR!\nFILE IS FULL.\n");
         return;
     }
 
-    Tproduto aux;
-    char correto = 'n';
+    Tproduct aux;
+    char correct = 'n';
 
-    do {
-        printf("Codigo: ");
-        scanf("%ld", &aux.codigo);
-        fflush(stdin);
-    } while (aux.codigo <= 0);
+    do{
+        printf("Code: ");
+        scanf("%ld", &aux.productCode);
+        cleanStdin();
+    } while (aux.productCode <= 0);
 
-    if(pesqbin(estoque, aux.codigo, *tamanho) >= 0) {
-        printf("\nCODIGO JA CADASTRADO!!\n");
-        printf("\nAPERTE ENTER PARA VOLTAR AO MENU\n");
+    if(binarySearch(inventory, aux.productCode, *size) >= 0){
+        printf("\nTHE PRODUCT CODE IS ALREDY REGISTERED !!\n");
+        printf("\nTYPE ENTER TO GO BACK TO THE MENU\n");
         getchar();
         system("clear");
         return;
     }
 
-    do {
-        printf("\nNome do produto: ");
-        fgets(aux.nome, sizeof(aux.nome), stdin);
-        fflush(stdin);
-        aux.nome[strcspn(aux.nome, "\n")] = '\0';
-        
-        if (aux.nome[0] == '\0') {
-            printf("O CAMPO NAO PODE SER VAZIO\n");
+    do{
+        printf("\nProduct name: ");
+        fgets(aux.name, sizeof(aux.name), stdin);
+        cleanStdin();
+        aux.name[strcspn(aux.name, "\n")] = '\0';
+        if (aux.name[0] == '\0') {
+            printf("THE FIELD CANT BE EMPTY\n");
         }
-    } while (aux.nome[0] == '\0');
+    } while(aux.name[0] == '\0');
 
-    do {
-        printf("\nDescrição do produto: ");
-        fgets(aux.desc, sizeof(aux.desc), stdin);
-        fflush(stdin);
-        aux.desc[strcspn(aux.desc, "\n")] = '\0';
-        
-        if (aux.desc[0] == '\0') {
-            printf("O CAMPO NAO PODE SER VAZIO\n");
+    do{
+        printf("\nDescription of the product: ");
+        fgets(aux.productDescription, sizeof(aux.productDescription), stdin);
+        cleanStdin();
+        aux.productDescription[strcspn(aux.productDescription, "\n")] = '\0';
+        if (aux.productDescription[0] == '\0') {
+            printf("THE FIELD CANT BE EMPTY\n");
         }
-    } while (aux.desc[0] == '\0');
+    } while (aux.productDescription[0] == '\0');
 
-    do {
-        printf("\nFornecedor do produto: ");
-        fgets(aux.fornecedor, sizeof(aux.fornecedor), stdin);
-        fflush(stdin);
-        aux.fornecedor[strcspn(aux.fornecedor, "\n")] = '\0';
-        if (aux.fornecedor[0] == '\0') {
-            printf("O CAMPO NAO PODE SER VAZIO\n");
+    do{
+        printf("\nSupplier of the product: ");
+        fgets(aux.productSupplier, sizeof(aux.productSupplier), stdin);
+        cleanStdin();
+        aux.productSupplier[strcspn(aux.productSupplier, "\n")] = '\0';
+        if (aux.productSupplier[0] == '\0') {
+            printf("THE FIELD CANT BE EMPTY\n");
         }
-    } while (aux.fornecedor[0] == '\0');
+    } while (aux.productSupplier[0] == '\0');
 
-    do {
-        printf("\nEstoque minimo do produto: ");
-        scanf("%d", &aux.estoqueMin);
-        fflush(stdin);
-    } while (aux.estoqueMin < 0);
+    do{
+        printf("\nMinimal quantity of the product in the inventory: ");
+        scanf("%d", &aux.inventoryMin);
+        cleanStdin();
+    } while (aux.inventoryMin < 0);
 
-    do {
-        printf("\nGrupo : \n");
-        printf("[1] - CABELO : \n");
-        printf("[2] - UNHA : \n");
-        printf("[3] - PELE : \n");
-        printf("SELECIONE UM DESSES GRUPOS ACIMA: ");
-        scanf("%d", &aux.grupo);
-        fflush(stdin);
+    do{
+        printf("\nGroup: \n");
+        printf("1 - HAIR : \n");
+        printf("2 - NAIL : \n");
+        printf("3 - SKIN : \n");
+        printf("CHOOSE ONE OF THE GROUPS ABOVE: ");
+        scanf("%d", &aux.productGroup);
+        cleanStdin();
 
-        if (aux.grupo != 1 && aux.grupo != 2 && aux.grupo != 3) {
-            printf("\nGrupo inválido. Digite novamente.\n");
+        if (aux.productGroup != 1 && aux.productGroup != 2 && aux.productGroup != 3){
+            printf("\nInvalid product group. Type again.\n");
         }
-    } while (aux.grupo != 1 && aux.grupo != 2 && aux.grupo != 3);
+    } while (aux.productGroup != 1 && aux.productGroup != 2 && aux.productGroup != 3);
 
-    do {
-        printf("\nQuantidade do produto: ");
-        scanf("%d", &aux.quantidade);
-        fflush(stdin);
-    } while (aux.quantidade < 0);
+    do{
+        printf("\nProduct quantity in inventory: ");
+        scanf("%d", &aux.productQuantity);
+        cleanStdin();
+    } while (aux.productQuantity < 0);
 
-    do
-    {
-        printf("\nUnidade do Produto (UN ou LT): ");
-        fgets(aux.unidade, sizeof(aux.unidade), stdin);
-        fflush(stdin);
-        aux.unidade[strcspn(aux.unidade, "\n")] = '\0';
-
-        if (strcmp(aux.unidade, "UN") != 0 && strcmp(aux.unidade, "LT") != 0) {
-            printf("Unidade inválida. Digite novamente.\n");
+    do{
+        printf("\nProduct Unit (UN or LT): ");
+        fgets(aux.productUnit, sizeof(aux.productUnit), stdin);
+        cleanStdin();
+        aux.productUnit[strcspn(aux.productUnit, "\n")] = '\0';
+        if (strcmp(aux.productUnit, "UN") != 0 && strcmp(aux.productUnit, "LT") != 0) {
+            printf("Invalid product unit. Type again.\n");
         }
-    } while (strcmp(aux.unidade, "UN") != 0 && strcmp(aux.unidade, "LT") != 0);
+    } while (strcmp(aux.productUnit, "UN") != 0 && strcmp(aux.productUnit, "LT") != 0);
 
-    do {
-        printf("\nPreço de compra do produto: R$");
-        scanf("%f", &aux.prCompra);
-        fflush(stdin);
-    } while (aux.prCompra < 0);
+    do{
+        printf("\nBuy price of the product from the supplier: R$ ");
+        scanf("%f", &aux.productBuyPrice);
+        cleanStdin();
+    } while (aux.productBuyPrice < 0);
 
-    do
-    {
-        printf("\nValor do Lucro minimo por produto: R$");
-        scanf("%f", &aux.lucro);
-        fflush(stdin);
-    } while (aux.lucro < 0);
+    do{
+        printf("\nMinimal profit margin for the product: R$ ");
+        scanf("%f", &aux.productMinimalProfit);
+        cleanStdin();
+    } while (aux.productMinimalProfit < 0);
 
-    do
-    {
-        printf("\nPreco de venda do produto: R$");
-        scanf("%f", &aux.prVenda);
-        fflush(stdin);
-    } while (aux.prVenda < 0);
+    do{
+        printf("\nSell price of the product: R$ ");
+        scanf("%f", &aux.productSellPrice);
+        cleanStdin();
+    } while (aux.productSellPrice < 0);
 
-    aux.dataVencido = conseguirTempoValidade();
+    aux.expiredDate = getExpiredDate();
 
-    printf("\nOs dados estão corretos? (S/N)");
-    correto = getchar();
-    fflush(stdin);
+    printf("\nThe data is correct? (Y/N)");
+    correct = getchar();
+    cleanStdin();
     system("clear");
 
-    if (correto == 's' || correto == 'S'){
-        estoque[*tamanho] = aux; // Faz a transferência
-        (*tamanho)++;
-        ordenado = 0;
-        printf("\tO PRODUTO FOI INCLUIDO!\n");
+    if(correct == 'y' || correct == 'Y'){
+        // Makes the transfer to the array
+        inventory[*size] = aux;
+        (*size)++;
+        sortData = 0;
+        printf("\tTHE PRODUCT WAS ADDED!!\n");
     }
 
-    printf("\nAPERTE ENTER PARA VOLTAR AO MENU\n");
-    fflush(stdin);
+    printf("\nTYPE ENTER TO GO BACK TO THE MENU\n");
+    cleanStdin();
     getchar();
     system("clear");
     return;
 }
 
-void relatorioGeral(Tproduto estoque[], int tamanho){
+void generalReport(Tproduct inventory[], int size){
 
-    struct tm *dataHoje;
-    time_t diaH;
-    time(&diaH);
-    dataHoje = localtime(&diaH);
+    struct tm *dateToday;
+    time_t dayT;
+    time(&dayT);
+    dateToday = localtime(&dayT);
 
-    int i, contador = 0;
-    int limite = 2; // Define o limite de produtos a serem exibidos por página
-    int pagina = 1; // Número da página atual
-    int totalPaginas = (tamanho + limite - 1) / limite; // Calcula o total de páginas necessárias
+    int i, counter = 0;
+    // Define the limit of pages being shown per page
+    int limit = 2;
+    // Number of the current
+    int page = 1;
+    // Calculates the number of pages
+    int totalPages = (size + limit - 1) / limit;
 
-    fflush(stdin);
-    printf("\tControle de Estoque - Relatório geral - %d/%d/%d\n", dataHoje->tm_mday, \
-    dataHoje->tm_mon + 1, dataHoje->tm_year + 1900);
+    cleanStdin();
+    printf("\tInventory control - General report - %d/%d/%d\n", dateToday->tm_mday, \
+    dateToday->tm_mon + 1, dateToday->tm_year + 1900);
     printf("=======================================================================\n");
-    ordena(estoque, tamanho);
-    printf("Código\t\t\t\t\tPreço\n");
-    while (contador < tamanho) {
-        // Exibe os produtos da página atual
-        for(i = contador; i < tamanho && i < contador + limite; i++){
-            printf("%ld\t\t\t\t\tR$ %.2f\n", estoque[i].codigo, estoque[i].prCompra);
-            printf("Descricao: %s\n", estoque[i].desc);
-            printf("Unidade: %s\t\tFornecedor: %s\n", estoque[i].unidade, estoque[i].fornecedor);
-            printf("Preco de Compra: R$ %.2f\tPreco de Venda: R$ %.2f\tLucro Minimo: %.f\n", \
-            estoque[i].prCompra, \
-            estoque[i].prVenda, estoque[i].lucro);
-            printf("Quantidade em Estoque: %d\tQuantidade Minima: %d\n", estoque[i].quantidade, \
-            estoque[i].estoqueMin);
-            printf("Data de validade: %d/%d/%d\n", estoque[i].dataVencido.tm_mday, \
-            estoque[i].dataVencido.tm_mon, estoque[i].dataVencido.tm_year);
+    sortProduct(inventory, size);
+    printf("Product Code\t\t\t\t\tPrice\n");
+    while (counter < size) {
+        // Exhibit the current products of the page
+        for(i = counter; i < size && i < counter + limit; i++){
+            printf("%ld\t\t\t\t\tR$ %.2f\n", inventory[i].productCode, inventory[i].productBuyPrice);
+            printf("Name: %s\t\t\t\tDescription %s\n", inventory[i].name, inventory[i].productDescription);
+            printf("Unit: %s\t\tSupplier: %s\n", inventory[i].productUnit, inventory[i].productSupplier);
+            printf("Buy price: R$ %.2f\tSell price: R$ %.2f\tMinimal profit margin: R$ %.2f\n", \
+            inventory[i].productBuyPrice, \
+            inventory[i].productSellPrice, inventory[i].productMinimalProfit);
+            printf("Product quantity in inventory: %d\tMinimal product quantity for the inventory: %d\n", inventory[i].productQuantity, \
+            inventory[i].inventoryMin);
+            printf("Expiration date: %d/%d/%d\n", inventory[i].expiredDate.tm_mday, \
+            inventory[i].expiredDate.tm_mon, inventory[i].expiredDate.tm_year);
             printf("--------------------------------------------------------------------------\n");
         }
 
-        printf("Página %d de %d\n", pagina, totalPaginas);
+        printf("Page %d of %d\n", page, totalPages);
         
-        if (pagina < totalPaginas) {
-            printf("APERTE 'N' PARA AVAN�AR PARA A PR�XIMA P�GINA");
+        if (page < totalPages) {
+            printf("TYPE 'N' TO GO TO THE NEXT PAGE ");
         }
         
-        if (pagina > 1) {
-            printf("APERTE 'P' PARA VOLTAR UMA P�GINA");
+        if (page > 1) {
+            printf("TYPE 'P' TO GO TO PREVIOUS PAGE ");
         }
         
-        printf(" OU 'Q' PARA VOLTAR AO MENU\n");
-        char opcao = getchar();
-        getchar(); // Limpa o caractere de nova linha pendente
+        // Clean the character of the pending line
+        printf("OR TYPE 'Q' TO QUIT THE REPORT\n");
+        char opt = getchar();
+        getchar();
 
-        if (opcao == 'q' || opcao == 'Q') {
+        // Exits the loop if the user decides to go back to the menu
+        if (opt == 'q' || opt == 'Q'){
             system("clear");
-            break; // Sai do loop se o usu�rio escolher voltar ao menu
-        } else if (opcao == 'n' || opcao == 'N') {
-            if (pagina < totalPaginas) {
-                contador += limite; // Avan�a para a pr�xima p�gina
-                pagina++; // Atualiza o n�mero da p�gina
+            break; 
+        // Go to the next page
+        } else if (opt == 'n' || opt == 'N') {
+            if (page < totalPages) {
+                counter += limit; 
+                // Updates the number of the page
+                page++;
             }
-        } else if (opcao == 'p' || opcao == 'P') {
-            if (pagina > 1) {
-                contador -= limite; // Volta uma p�gina
-                if (contador < 0) {
-                    contador = 0; // Garante que o contador n�o seja negativo
+        // Go back a page
+        } else if (opt == 'p' || opt == 'P'){
+            if (page > 1) {
+                counter -= limit; 
+                if (counter < 0) {
+                    // Garantees that the counter cant be negative
+                    counter = 0;
                 }
-                pagina--; // Atualiza o número da página
+                // Updates the page number
+                page--; 
             }
         }
         
@@ -432,399 +457,422 @@ void relatorioGeral(Tproduto estoque[], int tamanho){
     }
 }
 
-void alteracao(Tproduto estoque[], int tamanho){
-    if (vazio(tamanho)) {
-    	printf("\nAPERTE ENTER PARA VOLTAR AO MENU");
-	    fflush(stdin);
+void changeProduct(Tproduct inventory[], int size){
+
+    if (null(size)) {
+    	printf("\nTYPE ENTER TO GO BACK TO THE MENU");
+	    cleanStdin();
 	    getchar();
 	    system("clear");
         return;
     }
 
-    long int codigo;
-    int posicao, opc;
+    long int productCode;
+    int position, opt;
 
-    printf("Digite o codigo do produto a ser alterado: ");
-    scanf("%ld", &codigo);
+    printf("Type the code of the product were is gonna be changed: ");
+    scanf("%ld", &productCode);
 
-    posicao = pesqbin(estoque, codigo, tamanho);
+    position = binarySearch(inventory, productCode, size);
 
-    if (posicao == -1) {
-        printf("Produto nao encontrado!\n");
-        printf("\nAPERTE ENTER PARA VOLTAR AO MENU");
-	    fflush(stdin);
+    if (position == -1) {
+        printf("PRODUCT NOT FOUND!!\n");
+        printf("\nTYPE ENTER TO GO BACK TO THE MENU");
+	    cleanStdin();
 	    getchar();
 	    system("clear");
         return;
     }
 
-    
+    printf("======================================================\n");
+    printf(" 1 - NAME\n");
+    printf(" 2 - GROUP\n");
+    printf(" 3 - DESCRIPTION\n");
+    printf(" 4 - UNIT\n");
+    printf(" 5 - SUPPLIER\n");
+    printf(" 6 - PRODUCT QUANTITY\n");
+    printf(" 7 - BUY PRICE\n");
+    printf(" 8 - SELL PRICE\n");
+    printf(" 9 - MINIMAL PROFIT MARGIN\n");
+    printf(" 10 - MINIMAL PRODUCT QUANTITY FOR THE INVENTORY\n");
+    printf(" 11 - EXPIRATION DATE\n");
+    printf(" 12 - ALL THE OPTIONS ABOVE\n");
+    printf(" 0 - EXIT\n");
+    printf("\nCHOOSE THE DESIRED OPTION TO EDIT:\n");
+    scanf("%d",&opt);
+    system("clear");
 
-    switch(opc){
+    switch(opt){
     case 1:
-        printf("Digite o novo grupo ao qual o produto pertence: ");
-        scanf("%d", &estoque[posicao].grupo);
+        printf("Type the new name of the product: ");
+        cleanStdin();
+        fgets(inventory[position].name, 41, stdin);
+        inventory[position].name[strcspn(inventory[position].name, "\n")] = '\0';
         break;
     case 2:
-        printf("Digite a nova descrição do produto: ");
-        fflush(stdin);
-        fgets(estoque[posicao].desc, 41, stdin);
-        estoque[posicao].desc[strcspn(estoque[posicao].desc, "\n")] = '\0';
+        printf("Type the new group that the product belongs: ");
+        scanf("%d", &inventory[position].productGroup);
         break;
     case 3:
-        printf("Digite a nova unidade de medida: ");
-        fflush(stdin);
-        fgets(estoque[posicao].unidade, 3, stdin);
-        estoque[posicao].unidade[strcspn(estoque[posicao].unidade, "\n")] = '\0';
+        printf("Type the new description of the product: ");
+        cleanStdin();
+        fgets(inventory[position].productDescription, 41, stdin);
+        inventory[position].productDescription[strcspn(inventory[position].productDescription, "\n")] = '\0';
         break;
     case 4:
-        printf("Digite o novo nome do fornecedor do produto: ");
-        fflush(stdin);
-        fgets(estoque[posicao].fornecedor, 41, stdin);
-        estoque[posicao].fornecedor[strcspn(estoque[posicao].fornecedor, "\n")] = '\0';
+        printf("Type the new unit: ");
+        cleanStdin();
+        fgets(inventory[position].productUnit, 3, stdin);
+        inventory[position].productUnit[strcspn(inventory[position].productUnit, "\n")] = '\0';
         break;
     case 5:
-        printf("Digite a nova quantidade do produto em estoque: ");
-        scanf("%d", &estoque[posicao].quantidade);
+        printf("Type the new name of the supplier of the product: ");
+        cleanStdin();
+        fgets(inventory[position].productSupplier, 41, stdin);
+        inventory[position].productSupplier[strcspn(inventory[position].productSupplier, "\n")] = '\0';
         break;
     case 6:
-        printf("Digite o novo preco de compra do produto: ");
-        scanf("%f", &estoque[posicao].prCompra);
+        printf("Type the new quantity of the product in the inventory: ");
+        scanf("%d", &inventory[position].productQuantity);
         break;
     case 7:
-        printf("Digite o novo preco de venda do produto: ");
-        scanf("%f", &estoque[posicao].prVenda);
+        printf("Type the new buy price of the product: ");
+        scanf("%f", &inventory[position].productBuyPrice);
         break;
     case 8:
-        printf("Digite a nova margem de lucro minima: ");
-        scanf("%f", &estoque[posicao].lucro);
+        printf("Type the new sell price of the product: ");
+        scanf("%f", &inventory[position].productSellPrice);
         break;
     case 9:
-        printf("Digite a nova quantidade minima em estoque: ");
-        scanf("%d", &estoque[posicao].estoqueMin);
-    break;
-    case 10:
-        menuAltVal(estoque, tamanho);
+        printf("Type the new minimal profit margin of the product: ");
+        scanf("%f", &inventory[position].productMinimalProfit);
         break;
+    case 10:
+        printf("Type the new minimal quantity of the product necessary to be in the inventory: ");
+        scanf("%d", &inventory[position].inventoryMin);
+    break;
     case 11:
-        funcAlt(estoque, tamanho);
+        changeExpiredMenu(inventory, size);
+        break;
+    case 12:
+        changeFunction(inventory, size);
         break;
     case 0:
         return;
         break;
     default:
-        printf("OPÇÃO INVÁLIDA!!\n\n");
+        printf("INVALID OPTION!!\n\n");
         system("clear");
     }
 
-    printf("\nProduto modificado com sucesso!\n");
-    printf("\nAPERTE ENTER PARA VOLTAR AO MENU");
-    fflush(stdin);
+    printf("\nPRODUCT MODIFIED WITH SUCCESS!!\n");
+    printf("\nTYPE ENTER TO GO BACK TO THE MENU");
+    cleanStdin();
     getchar();
     system("clear");
     return;
 }
 
-void exclusao(Tproduto estoque[], int* tamanho) {
-    if (vazio(*tamanho)) {
-    	printf("\nAPERTE ENTER PARA VOLTAR AO MENU");
-	    fflush(stdin);
+void deleteProduct(Tproduct inventory[], int* size) {
+    if (null(*size)) {
+    	printf("\nTYPE ENTER TO GO BACK TO THE MENU");
+	    cleanStdin();
 	    getchar();
 	    system("clear");
         return;
         
     }
 
-    long int codigo;
-    int posicao, i;
+    long int productCode;
+    int position, i;
 
-    printf("Digite o codigo do produto a ser excluido: ");
-    scanf("%ld", &codigo);
+    printf("Type the code of the product desired to be deleted: ");
+    scanf("%ld", &productCode);
 
-    posicao = pesqbin(estoque, codigo, *tamanho);
+    position = binarySearch(inventory, productCode, *size);
 
-    if (posicao == -1) {
-        printf("Produto nao encontrado!\n");
-        printf("\nAPERTE ENTER PARA VOLTAR AO MENU");
-	    fflush(stdin);
+    if (position == -1) {
+        printf("PRODUCT NOT FOUND!!\n");
+        printf("\nTYPE ENTER TO GO BACK TO THE MENU");
+	    cleanStdin();
 	    getchar();
 	    system("clear");
         return;
     }
 
-    for (i = posicao; i < (*tamanho) - 1; i++) {
-        estoque[i] = estoque[i + 1];
+    for (i = position; i < (*size) - 1; i++) {
+        inventory[i] = inventory[i + 1];
     }
     
 
-    (*tamanho)--;
-    ordenado = 0;
-    printf("\n ITEM EXCLUIDO COM SUCESSO !... \n ");
+    (*size)--;
+    sortData = 0;
+    printf("\n PRODUCT DELETED WITH SUCCESS!!... \n ");
     system("\n pause \n");
     system("clear");
 }
 
-void consulta(Tproduto estoque[], int tamanho) {
-    if (vazio(tamanho)) {
-    	printf("\nAPERTE ENTER PARA VOLTAR AO MENU");
-	    fflush(stdin);
+void consultProduct(Tproduct inventory[], int size){
+    if (null(size)) {
+    	printf("\nTYPE ENTER TO GO BACK TO THE MENU");
+	    cleanStdin();
 	    getchar();
 	    system("clear");
         return;
     }
 
-    long int codigo;
-    int posicao;
+    long int productCode;
+    int position;
 
-    printf("Digite o codigo do produto a ser consultado: ");
-    scanf("%ld", &codigo);
+    printf("Type the code of the product desired to be consulted: ");
+    scanf("%ld", &productCode);
 
-    posicao = pesqbin(estoque, codigo, tamanho);
+    position = binarySearch(inventory, productCode, size);
 
-    if (posicao == -1) {
-        printf("Produto nao encontrado!\n");
-        printf("\nAPERTE ENTER PARA VOLTAR AO MENU");
-	    fflush(stdin);
+    if(position == -1){
+        printf("PRODUCT NOT FOUND!!\n");
+        printf("\nTYPE ENTER TO GO BACK TO THE MENU");
+	    cleanStdin();
 	    getchar();
 	    system("clear");
         return;
     }
 
     printf("\n--------------------------------------------------------------------------\n");
-    printf("Codigo: %ld\n", estoque[posicao].codigo);
-    printf("Grupo: %d\n", estoque[posicao].grupo);
-    printf("Descrição: %s\n", estoque[posicao].desc);
-    printf("Unidade: %s\n", estoque[posicao].unidade);
-    printf("Fornecedor: %s\n", estoque[posicao].fornecedor);
-    printf("Quantidade em estoque: %.d\n", estoque[posicao].quantidade);
-    printf("Preco de compra: %.2f\n", estoque[posicao].prCompra);
-    printf("Preco de venda: %.2f\n", estoque[posicao].prVenda);
-    printf("Margem de lucro minima: %.2f\n", estoque[posicao].lucro);
-    printf("Quantidade minima em estoque: %d\n", estoque[posicao].estoqueMin);
-    printf("Data de validade: %d/%d/%d\n", estoque[posicao].dataVencido.tm_mday, \
-    estoque[posicao].dataVencido.tm_mon, estoque[posicao].dataVencido.tm_year);
+    printf("Code: %ld\n", inventory[position].productCode);
+    printf("Name: %s", inventory[position].name);
+    printf("Group: %d\n", inventory[position].productGroup);
+    printf("Description: %s\n", inventory[position].productDescription);
+    printf("Unit: %s\n", inventory[position].productUnit);
+    printf("Supplier: %s\n", inventory[position].productSupplier);
+    printf("Quantity in inventory: %.d\n", inventory[position].productQuantity);
+    printf("Buy Price: %.2f\n", inventory[position].productBuyPrice);
+    printf("Sell Price: %.2f\n", inventory[position].productSellPrice);
+    printf("Minimal profit margin: %.2f\n", inventory[position].productMinimalProfit);
+    printf("Minimal product quantity in inventory: %d\n", inventory[position].inventoryMin);
+    printf("Expiration date: %d/%d/%d\n", inventory[position].expiredDate.tm_mday, \
+    inventory[position].expiredDate.tm_mon, inventory[position].expiredDate.tm_year);
     printf("--------------------------------------------------------------------------\n");
 
-    printf("\nAPERTE ENTER PARA VOLTAR AO MENU");
-    fflush(stdin);
+    printf("\nTYPE ENTER TO GO BACK TO THE MENU");
+    cleanStdin();
     getchar();
     system("clear");
     return;
 }
 
-void relatorioEstoqueMin(Tproduto estoque[], int tamanho){
+void reportMinimalInventory(Tproduct inventory[], int size){
+    if (size == 0) {
+        printf("\tEMPTY INVENTORY!!\n");
+        printf("\nTYPE ENTER TO GO BACK TO THE MENU");
+        cleanStdin();
+        getchar();
+        system("clear");
+        return;
+    }
+
+    int i;
+    int productFound = 0;
+
+    for (i = 0; i < size; i++) {
+        if (inventory[i].productQuantity < inventory[i].inventoryMin) {
+            if (productFound == 0) {
+                cleanStdin();
+                printf("There are products bellow the minimal quantity!\n\n");
+            }
+
+            printf("Products bellow the minimal quantity in the inventory:\n");
+            cleanStdin();
+            printf("Code: %ld \n", inventory[i].productCode);
+            printf("Group: %d\n", inventory[i].productGroup);
+            printf("Description: %s\n", inventory[i].productDescription);
+            printf("Unit: %s\n", inventory[i].productUnit);
+            printf("Supplier: %s\n", inventory[i].productSupplier);
+            printf("Quantity in inventory: %d\n", inventory[i].productQuantity);
+            printf("Buy price: %.2f\n", inventory[i].productBuyPrice);
+            printf("Sell price: %.2f\n", inventory[i].productSellPrice);
+            printf("Minimal margin profit: %.2f\n", inventory[i].productMinimalProfit);
+            printf("Minimal quantity in inventory: %d\n", inventory[i].inventoryMin);
+            printf("\n");
+            productFound++;
+        }
+    }
+
+    if (productFound == 0) {
+        cleanStdin();
+        printf("No product is bellow the minimal quantity in the inventory!\n\n");
+    }
+
+    printf("TYPE ENTER TO GO BACK TO THE MENU");
+    getchar();
+    system("clear");
+    return;
+}
+
+void increaseSupplierPrices(Tproduct inventory[], int size){
+
+    char productSupplier[50];
+    float percentageAdjustment;
+
+    printf("Inform supplier name: ");
+    cleanStdin();
+    fgets(productSupplier, 50, stdin);
+    // Remove the charactere of the break line
+    cleanStdin();
+    productSupplier[strcspn(productSupplier, "\n")] = '\0';
+
+    printf("Inform the percentage adjustment in the buy price: ");
+    scanf("%f", &percentageAdjustment);
+
+    int i;
+    int alteredProducts = 0;
+
+    for(i = 0; i < size; i++){
+        if(strcmp(inventory[i].productSupplier, productSupplier) == 0){
+            printf("\nProduct found:\n");
+            printf("Code: %ld\n", inventory[i].productCode);
+            printf("Name: %s", inventory[i].name);
+            printf("Description: %s\n", inventory[i].productDescription);
+            printf("Current product buy price: R$ %.2f\n", inventory[i].productBuyPrice);
+            
+            float newProductBuyPrice = inventory[i].productBuyPrice * (1 + percentageAdjustment / 100);
+            
+            printf("New product buy price: R$ %.2f\n", newProductBuyPrice);
+            
+            printf("Type 'Y' to confirm the change: ");
+            char opt;
+            cleanStdin();
+            scanf("%c", &opt);
+            
+            if(opt == 'y' || opt == 'Y'){
+                inventory[i].productBuyPrice = newProductBuyPrice;
+                alteredProducts++;
+                printf("Increase in the buy price of the product with the code %ld.\n", \
+                inventory[i].productCode);
+            }
+        }
+    }
+
+    if(alteredProducts > 0){
+        printf("\nPrice increase of the buy price of the supplier products completed. \
+        Total of products were prices were increased: %d\n", 
+        alteredProducts);
+    } else{
+        printf("\nNo product was found for the informed supplier.\n");
+    }
+
+    printf("\nTYPE ENTER TO GO BACK TO THE MENU");
+    cleanStdin();
+    getchar();
+    system("clear");
+    return;
+}
+
+void expired(Tproduct inventory[], int size){
+
+    struct tm *date;
+    time_t dayT;
+    time(&dayT);
+    date = localtime(&dayT);
     
-    if (tamanho == 0) {
-        printf("\tEstoque vazio!\n");
-        printf("\nAPERTE ENTER PARA VOLTAR AO MENU");
-	    fflush(stdin);
+    if (size == 0){
+        printf("EMPTY INVENTORY!!\n");
+        printf("\nTYPE ENTER TO GO BACK TO THE MENU");
+	    cleanStdin();
 	    getchar();
 	    system("clear");
         return;
     }
 
     int i;
-    int encontrados = 0;
-	
-	if (encontrados > 0) {
-		fflush(stdin);
-        printf("Há produtos com quantidade em estoque abaixo do mínimo!\n\n");
-    } else {
-    	fflush(stdin);
-        printf("Nenhum produto com quantidade em estoque abaixo do mínimo!\n\n");
-    }
-	
-    for (i = 0; i < tamanho; i++) {
-        if (estoque[i].quantidade < estoque[i].estoqueMin) {
-        	printf("Produtos com quantidade em estoque abaixo do minimo:\n");
-        	fflush(stdin);
+    int productsFound = 0;
+
+    printf("Products that expired:\n");
+
+    for (i = 0; i < size; i++){
+        if(inventory[i].expiredDate.tm_mday < date->tm_mday \
+        && inventory[i].expiredDate.tm_mon < date->tm_mon + 1\
+        || inventory[i].expiredDate.tm_year < date->tm_year + 1900){
             printf("\n--------------------------------------------------------------------------\n");
-            printf("Codigo: %ld \n", estoque[i].codigo);
-            printf("Grupo: %d\n", estoque[i].grupo);
-            printf("Descricao: %s\n", estoque[i].desc);
-            printf("Unidade: %s\n", estoque[i].unidade);
-            printf("Fornecedor: %s\n", estoque[i].fornecedor);
-            printf("Quantidade em estoque: %d\n", estoque[i].quantidade);
-            printf("Preco de compra: %.2f\n", estoque[i].prCompra);
-            printf("Preco de venda: %.2f\n", estoque[i].prVenda);
-            printf("Margem de lucro minima: %.2f\n", estoque[i].lucro);
-            printf("Quantidade minima em estoque: %d\n", estoque[i].estoqueMin);
+            printf("Code: %ld \n", inventory[i].productCode);
+            printf("Name: %s \n", inventory[i].name);
+            printf("Group: %d\n", inventory[i].productGroup);
+            printf("Description: %s\n", inventory[i].productDescription);
+            printf("Unit: %s\n", inventory[i].productUnit);
+            printf("Supplier: %s\n", inventory[i].productSupplier);
+            printf("Quantity in inventory: %d\n", inventory[i].productQuantity);
+            printf("Buy price : %.2f\n", inventory[i].productBuyPrice);
+            printf("Sell price: %.2f\n", inventory[i].productSellPrice);
+            printf("Minimal profit margin: %.2f\n", inventory[i].productMinimalProfit);
+            printf("Minimal product quantity in inventory: %d\n", inventory[i].inventoryMin);
+            printf("Expiration date: %d/%d/%d\n", inventory[i].expiredDate.tm_mday, \
+            inventory[i].expiredDate.tm_mon, inventory[i].expiredDate.tm_year);
             printf("--------------------------------------------------------------------------\n");
             printf("\n");
-            encontrados++;
+            productsFound++;
         }
     }
 
-    printf("APERTE ENTER PARA VOLTAR AO MENU");
+    printf("TYPE ENTER TO GO BACK TO THE MENU\n");
+    cleanStdin();
     getchar();
     system("clear");
     return;
 }
 
-void aumentoForn(Tproduto estoque[], int tamanho){
-
-    char fornecedor[50];
-    float percentualReajuste;
-
-    printf("Informe o nome do fornecedor: ");
-    fflush(stdin);
-    fgets(fornecedor, 50, stdin);
-    fornecedor[strcspn(fornecedor, "\n")] = '\0'; // Remove o caractere de quebra de linha
-
-    printf("Informe o percentual de reajuste: ");
-    scanf("%f", &percentualReajuste);
-
-    int i;
-    int produtosAlterados = 0;
-
-    for (i = 0; i < tamanho; i++) {
-        if (strcmp(estoque[i].fornecedor, fornecedor) == 0) 
-        {
-            printf("\nProduto encontrado:\n");
-            printf("Codigo: %ld\n", estoque[i].codigo);
-            printf("Descricao: %s\n", estoque[i].desc);
-            printf("Preco de compra atual: R$ %.2f\n", estoque[i].prCompra);
-            
-            float novoPrecoCompra = estoque[i].prCompra * (1 + percentualReajuste / 100);
-            
-            printf("Novo preco de compra: R$ %.2f\n", novoPrecoCompra);
-            
-            printf("Deseja confirmar o aumento de preco de compra? (S/N): ");
-            char opc;
-            fflush(stdin);
-            scanf(" %c", &opc);
-            
-            if (toupper(opc) == 'S') 
-            {
-                estoque[i].prCompra = novoPrecoCompra;
-                produtosAlterados++;
-                printf("Aumento de preco de compra confirmado para o produto de codigo %ld.\n", \
-                estoque[i].codigo);
-            }
-        }
-    }
-
-    if (produtosAlterados > 0) 
-    {
-        printf("\nAumento de preco de compra concluido. Total de produtos alterados: %d\n", \
-        produtosAlterados);
-    } else 
-    {
-        printf("\nNenhum produto encontrado para o fornecedor informado.\n");
-    }
-
-    printf("\nAPERTE ENTER PARA VOLTAR AO MENU");
-    fflush(stdin);
-    getchar();
-    system("clear");
-    return;
-}
-
-void venc(Tproduto estoque[], int tamanho){
-
-struct tm *data;
-    time_t diaH;
-    time(&diaH);
-    data = localtime(&diaH);
+void espMenu(){
     
-if (tamanho == 0){
-        printf("Estoque vazio!\n");
-        return;
-    }
+    Tproduct inventory[MAX];
+    struct tm *date;
+    time_t dayT;
+    time(&dayT);
+    date = localtime(&dayT);
+    int size = 0, opt;
 
-    int i;
-    int encontrados = 0;
-
-    printf("Produtos que passaram da válidade:\n");
-
-    for (i = 0; i < tamanho; i++){
-        if(estoque[i].dataVencido.tm_mday < data->tm_mday \
-        && estoque[i].dataVencido.tm_mon < data->tm_mon + 1\
-        && estoque[i].dataVencido.tm_year < data->tm_year + 1900 \
-        || estoque[i].dataVencido.tm_year < data->tm_year + 1900){
-            printf("\n--------------------------------------------------------------------------\n");
-            printf("Codigo: %ld \n", estoque[i].codigo);
-            printf("Grupo: %d\n", estoque[i].grupo);
-            printf("desc: %s\n", estoque[i].desc);
-            printf("Unidade: %s\n", estoque[i].unidade);
-            printf("Fornecedor: %s\n", estoque[i].fornecedor);
-            printf("Quantidade em estoque: %d\n", estoque[i].quantidade);
-            printf("Preco de compra: %.2f\n", estoque[i].prCompra);
-            printf("Preco de venda: %.2f\n", estoque[i].prVenda);
-            printf("Margem de lucro minima: %.2f\n", estoque[i].lucro);
-            printf("Quantidade minima em estoque: %d\n", estoque[i].estoqueMin);
-            printf("Data de validade: %d/%d/%d\n", estoque[i].dataVencido.tm_mday, \
-            estoque[i].dataVencido.tm_mon, estoque[i].dataVencido.tm_year);
-            printf("--------------------------------------------------------------------------\n");
-            printf("\n");
-            encontrados++;
-        }
-    }
-
-    if (encontrados == 0){
-        printf("Nenhum produto com quantidade em estoque abaixo do mínimo.\n");
-    }
-
-    printf("APERTE ENTER PARA VOLTAR AO MENU\n");
-    getchar();
-    system("clear");
-}
-
-void menuEsp()
-{
-    
-    Tproduto estoque[MAX];
-    struct tm *data;
-    time_t diaH;
-    time(&diaH);
-    data = localtime(&diaH);
-    int tamanho = 0, opc;
-
-    do 
-    {
-        printf("Hoje é: %d/%d/%d\n", data->tm_mday, data->tm_mon + 1, data->tm_year + 1900);
-		printf("\n===== RELATÓRIOS ESPECIAIS =====\n");
-		printf("1 - RELATÓRIOS DE PRODUTOS COM ESTOQUE ABAIXO DO MINÍMO : \n");
-        printf("2 - AUMENTO DO PREÇO DE COMPRA DO FORNECEDOR\n");
-        printf("3 - RELATÓRIO DE PRODUTOS PRÓXIMOS DA VALIDADE\n");
-		printf("0 - RETORNAR AO MENU PRINCIPAL\n");
-		printf("Escolha uma opção: ");
-		scanf("%d", &opc);
+    do{
+        printf("Today is: %d/%d/%d\n", date->tm_mday, date->tm_mon + 1, date->tm_year + 1900);
+		printf("\n===== SPECIAL REPORTS =====\n");
+		printf("1 - REPORTS OF PRODUCTS BELLOW THE MINIMAL QUANTITY : \n");
+        printf("2 - INCREASE THE BUY PRICE OF PRODUCTS FROM A SUPPLIER\n");
+        printf("3 - REPORT WITH EXPIRED PRODUCTS\n");
+		printf("0 - GO BACK TO MAIN MENU\n");
+		printf("Choose an options: ");
+		scanf("%d", &opt);
 		system("clear");
 			
-	    switch (opc) 
-        {
+	    switch (opt){
 		    case 1:
-                relatorioEstoqueMin(estoque, tamanho);      // Faça o processamento necessário para gerar o relatório de produtos com estoque abaixo do minímo
+                reportMinimalInventory(inventory, size);
                 break;
             case 2:
-                aumentoForn(estoque, tamanho);
-				grav(estoque, tamanho);
+                increaseSupplierPrices(inventory, size);
+				writeFile(inventory, size);
                 break;
             case 3:
-                venc(estoque, tamanho);
+                expired(inventory, size);
                 break;
 			case 0:
                 return;
 			    break;
 			default:
-			    printf("OPÇÃO INVÁLIDA!!\n\n");
+			    printf("INVALID OPTION!!\n\n");
                 system("clear");
 			        }
-		} while (opc != 0);
+		} while (opt != 0);
 }
 
-void menuAltVal(Tproduto estoque[], int tamanho){
 
-    int opc;
+void changeExpiredMenu(Tproduct inventory[], int size){
 
-    printf("Digite a opção para a edição da data de válidade:\n");
-    printf("1 - Dia ");
-    printf("2 - Mês");
-    printf("3 - Ano");
-    printf("4 - As 3 alternativas");
-    scanf("%d", & opc);
-    switch (opc){
+    int opt;
+
+    printf("Type the option to edit the expired date:\n");
+    printf("1 - Day ");
+    printf("2 - Mounth");
+    printf("3 - Year");
+    printf("4 - The 3 choises");
+    scanf("%d", & opt);
+    switch (opt){
         case 1:
             
             break;
@@ -835,69 +883,83 @@ void menuAltVal(Tproduto estoque[], int tamanho){
 
             break;
         case 4:
-            conseguirTempoValidade();
+            getExpiredDate();
             break;
         default:
-            printf("OPÇÃO INVÁLIDA!!\n\n");
+            printf("INVALID OPTION!!\n\n");
     }
 }
 
-void relatorioLista(Tproduto estoque[], int indice) {
-    printf("%ld\t\t\t\t%.2f\n", estoque[indice].codigo, estoque[indice].prVenda);
+void listReport(Tproduct inventory[], int index){
+    printf("%ld\t\t\t\t%.2f\n", inventory[index].productCode, \
+    inventory[index].productSellPrice);
 }
 
-void funcAlt(Tproduto estoque[], int tamanho){
+void changeFunction(Tproduct inventory[], int size){
     
-    int posicao;
+    int position;
 
-    printf("Digite o novo grupo ao qual o produto pertence: ");
-    scanf("%d", &estoque[posicao].grupo);
+    printf("Type the new group that the product belongs: ");
+    scanf("%d", &inventory[position].productGroup);
     
-    printf("Digite a nova descrição do produto: ");
-    fflush(stdin);
-    fgets(estoque[posicao].desc, 41, stdin);
-    estoque[posicao].desc[strcspn(estoque[posicao].desc, "\n")] = '\0';
+    printf("Type the new name of the product: ");
+    cleanStdin();
+    fgets(inventory[position].name, 41, stdin);
+    inventory[position].name[strcspn(inventory[position].name, "\n")] = '\0';
 
-    printf("Digite a nova unidade de medida: ");
-    fflush(stdin);
-    fgets(estoque[posicao].unidade, 3, stdin);
-    estoque[posicao].unidade[strcspn(estoque[posicao].unidade, "\n")] = '\0';
+    printf("Type the new description of the product: ");
+    cleanStdin();
+    fgets(inventory[position].productDescription, 41, stdin);
+    inventory[position].productDescription[strcspn(inventory[position].productDescription, "\n")] = '\0';
 
-    printf("Digite o novo nome do fornecedor do produto: ");
-    fflush(stdin);
-    fgets(estoque[posicao].fornecedor, 41, stdin);
-    estoque[posicao].fornecedor[strcspn(estoque[posicao].fornecedor, "\n")] = '\0';
+    printf("Type the new unit: ");
+    cleanStdin();
+    fgets(inventory[position].productUnit, 3, stdin);
+    inventory[position].productUnit[strcspn(inventory[position].productUnit, "\n")] = '\0';
 
-    printf("Digite a nova quantidade do produto em estoque: ");
-    scanf("%d", &estoque[posicao].quantidade);
+    printf("Type the new name of the supplier of the product: ");
+    cleanStdin();
+    fgets(inventory[position].productSupplier, 41, stdin);
+    inventory[position].productSupplier[strcspn(inventory[position].productSupplier, "\n")] = '\0';
 
-    printf("Digite o novo preco de compra do produto: ");
-    scanf("%f", &estoque[posicao].prCompra);
+    printf("Type the new quantity of the product in the inventory: ");
+    scanf("%d", &inventory[position].productQuantity);
 
-    printf("Digite o novo preco de venda do produto: ");
-    scanf("%f", &estoque[posicao].prVenda);
+    printf("Type the new buy price of the product: ");
+    scanf("%f", &inventory[position].productBuyPrice);
 
-    printf("Digite a nova margem de lucro minima: ");
-    scanf("%f", &estoque[posicao].lucro);
+    printf("Type the new sell price of the product: ");
+    scanf("%f", &inventory[position].productSellPrice);
 
-    printf("Digite a nova quantidade minima em estoque: ");
-    scanf("%d", &estoque[posicao].estoqueMin);
+    printf("Type the new minimal profit margin of the product: ");
+    scanf("%f", &inventory[position].productMinimalProfit);
 
-    menuAltVal(estoque, tamanho);
+    printf("Type the new minimal quantity of the product necessary to be in the inventory: ");
+    scanf("%d", &inventory[position].inventoryMin);
+
+    changeExpiredMenu(inventory, size);
 }
 
-int dataVal(struct tm dataV) {
-    // Checar se a data é valida
-    if (dataV.tm_year < 1900){
-        printf("DATA INVÁLIDA!!\n");
+void cleanStdin(void){
+    int c;
+    do {
+        c = getchar();
+    } while (c != '\n' && c != EOF);
+}
+
+
+int dateExp(struct tm dateE){
+    // Checks if is a valid date
+    if (dateE.tm_year < 1900){
+        printf("INVALID DATE\n");
         return 0;
     }
-    if (dataV.tm_mon < 1 || dataV.tm_mon > 12){
-        printf("DATA INVÁLIDA\n!!");
+    if (dateE.tm_mon < 1 || dateE.tm_mon > 12){
+        printf("INVALID DATE\n!!");
         return 0;
     }
-    if (dataV.tm_mday < 1 || dataV.tm_mday > 31){
-        printf("DATA INVÁLIDA!!\n");
+    if (dateE.tm_mday < 1 || dateE.tm_mday > 31){
+        printf("INVALID DATE!!\n");
         return 0;
     }
     return 1;
