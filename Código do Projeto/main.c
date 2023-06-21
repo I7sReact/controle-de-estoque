@@ -30,19 +30,19 @@ typedef struct Tproduct{
 // Function for validating the expiring date
 int dateExp(struct tm dateE);
 
-// Substitute for fflush(stdin)
+// Substitute for cleanStdin()
 void cleanStdin(void);
 
 // Struct for adding a expiration date for a product
 struct tm getExpiredDate(){
     struct tm dateE;
     do {
-        printf("Expiring date of a product.\n");
+        printf("\nExpiring date of a product.\n");
         printf("Day: ");
         scanf("%d", &dateE.tm_mday);
-        printf("Mounth: ");
+        printf("\nMonth: ");
         scanf("%d", &dateE.tm_mon);
-        printf("Year: ");
+        printf("\nYear: ");
         scanf("%d", &dateE.tm_year);
         cleanStdin();
     } while (!dateExp(dateE));
@@ -70,6 +70,9 @@ void addProdutct(Tproduct inventory[], int *size);
 // Function to exhibit the general report of registered products
 void generalReport(Tproduct inventory[], int size);
 
+// Function to exhibit a report of the prices of registered products
+void reportPriceList(Tproduct inventory[], int size);
+
 // Function to make a change in a alredy existing product
 void changeProduct(Tproduct inventory[], int size);
 
@@ -79,11 +82,14 @@ void deleteProduct(Tproduct inventory[], int *size);
 // Function to search for a specific product
 void consultProduct(Tproduct inventory[], int size);
 
-// Function for menu of special reports
-void espMenu();
+// Function to search for a specific product
+int consultProductByName(Tproduct inventory[], int size);
 
-// Funtion to show a report of expired products
-void expired(Tproduct inventory[], int size);
+// Function for menu of special reports
+void espMenu(Tproduct inventory[], int size);
+
+// Funtion to show a menu of reports for expired products
+void reportExpiredProduct(Tproduct invetory[], int size);
 
 // Funtion to increase the buy price of products from a specific supplier
 void increaseSupplierPrices(Tproduct inventory[], int size);
@@ -92,13 +98,13 @@ void increaseSupplierPrices(Tproduct inventory[], int size);
  quantity in the inventory
 void reportMinimalInventory(Tproduct inventory[], int size);
 
-void listReport(Tproduct inventory[], int index);
+void listReport(Tproduct invetory[], int index);
 
 // Function to change the expiration dates of a specific product
-void changeExpiredMenu(Tproduct inventory[], int size);
+// void changeExpiredMenu(Tproduct inventory[], int size);
 
 // Function to change all values of a specific product
-void changeFunction(Tproduct inventory[], int size);
+// void changeFunction(Tproduct inventory[], int size);
 
 
 // Main function
@@ -120,8 +126,10 @@ int main(){
         printf(" 2 - CHANGE PRODUCT DETAILS\n");
         printf(" 3 - DELETE PRODUCT\n");
         printf(" 4 - SEARCH PRODUCT\n");
-    	printf(" 5 - GENERAL REPORT\n");
-    	printf(" 6 - SPECIAL REPORTS\n");
+        printf(" 5 - SEARCH PRODUCT BY NAME\n");
+    	printf(" 6 - PRICE LIST REPORT\n");
+        printf(" 7 - GENERAL REPORT\n");
+    	printf(" 8 - SPECIAL REPORTS\n");
         printf(" 0 - EXIT\n");
         printf("\nCHOOSE THE DESIRED OPTION:\n");
         scanf("%d",&opt);
@@ -131,22 +139,28 @@ int main(){
             	addProdutct(inventory, &size);
             	writeFile(inventory, size);
 				break;
-			case 2 :
+			case 2:
 				changeProduct(inventory, size);
                 writeFile(inventory, size);
 				break;
-			case 3 :
+			case 3:
 				deleteProduct(inventory, &size);
                 writeFile(inventory, size);
 				break;
-			case 4 :
+			case 4:
 				consultProduct(inventory, size);
 				break;
             case 5:
+                consultProductByName(inventory, size);
+                break;
+            case 6:
+                reportPriceList(inventory, size);
+                break;
+            case 7:
             	generalReport(inventory,  size);
 				break;
-			case 6:
-				espMenu();		
+			case 8:
+				espMenu(inventory, size);		
 		    	break;
             case 0:
                 printf("Thanks for using our software!!\n");
@@ -157,12 +171,12 @@ int main(){
 			}
 				
     }while(opt!=0);
-        // Writing to the file after finishing the \
-                opperation
+        // Writing to the file after finishing the opperation
 		writeFile(inventory, size);
 	return 0;
 				
 }
+
 
 void readFile(Tproduct inventory[], int *size){
     FILE *file;
@@ -255,7 +269,7 @@ void addProdutct(Tproduct inventory[], int* size){
     }
 
     Tproduct aux;
-    char correct = 'n';
+    char correct;
 
     do{
         printf("Code: ");
@@ -362,7 +376,7 @@ void addProdutct(Tproduct inventory[], int* size){
     cleanStdin();
     system("clear");
 
-    if(correct == 'y' || correct == 'Y'){
+    if(toupper(correct) == 'Y'){
         // Makes the transfer to the array
         inventory[*size] = aux;
         (*size)++;
@@ -395,14 +409,14 @@ void generalReport(Tproduct inventory[], int size){
     cleanStdin();
     printf("\tInventory control - General report - %d/%d/%d\n", dateToday->tm_mday, \
     dateToday->tm_mon + 1, dateToday->tm_year + 1900);
-    printf("=======================================================================\n");
+    printf("=================================================================================================\n");
     sortProduct(inventory, size);
-    printf("Product Code\t\t\t\t\tPrice\n");
     while (counter < size) {
         // Exhibit the current products of the page
         for(i = counter; i < size && i < counter + limit; i++){
-            printf("%ld\t\t\t\t\tR$ %.2f\n", inventory[i].productCode, inventory[i].productBuyPrice);
-            printf("Name: %s\t\t\t\tDescription %s\n", inventory[i].name, inventory[i].productDescription);
+            printf("  Product Code\t\t\t\t\t      Group\n");
+            printf("\t%ld\t\t\t\t\t\t%d\n", inventory[i].productCode, inventory[i].productGroup);
+            printf("Name: %s\t\t\t\tDescription: %s\n", inventory[i].name, inventory[i].productDescription);
             printf("Unit: %s\t\tSupplier: %s\n", inventory[i].productUnit, inventory[i].productSupplier);
             printf("Buy price: R$ %.2f\tSell price: R$ %.2f\tMinimal profit margin: R$ %.2f\n", \
             inventory[i].productBuyPrice, \
@@ -411,37 +425,37 @@ void generalReport(Tproduct inventory[], int size){
             inventory[i].inventoryMin);
             printf("Expiration date: %d/%d/%d\n", inventory[i].expiredDate.tm_mday, \
             inventory[i].expiredDate.tm_mon, inventory[i].expiredDate.tm_year);
-            printf("--------------------------------------------------------------------------\n");
+            printf("-----------------------------------------------------------------------------------------\n");
         }
 
         printf("Page %d of %d\n", page, totalPages);
         
         if (page < totalPages) {
-            printf("TYPE 'N' TO GO TO THE NEXT PAGE ");
+            printf("TYPE 'N' TO GO TO THE NEXT PAGE \n");
         }
         
         if (page > 1) {
-            printf("TYPE 'P' TO GO TO PREVIOUS PAGE ");
+            printf("TYPE 'P' TO GO TO PREVIOUS PAGE\n");
         }
         
         // Clean the character of the pending line
-        printf("OR TYPE 'Q' TO QUIT THE REPORT\n");
+        printf("TYPE 'Q' TO QUIT THE REPORT\n");
         char opt = getchar();
         getchar();
 
         // Exits the loop if the user decides to go back to the menu
-        if (opt == 'q' || opt == 'Q'){
+        if (toupper(opt) == 'Q'){
             system("clear");
             break; 
         // Go to the next page
-        } else if (opt == 'n' || opt == 'N') {
+        } else if (toupper(opt) == 'N') {
             if (page < totalPages) {
                 counter += limit; 
                 // Updates the number of the page
                 page++;
             }
         // Go back a page
-        } else if (opt == 'p' || opt == 'P'){
+        } else if (toupper(opt) == 'P'){
             if (page > 1) {
                 counter -= limit; 
                 if (counter < 0) {
@@ -456,6 +470,61 @@ void generalReport(Tproduct inventory[], int size){
         system("clear");
     }
 }
+
+void reportPriceList(Tproduct inventory[], int size){
+    if (size == 0) {
+        printf("\tEMPTY INVENTORY!!\n");
+        printf("\nTYPE ENTER TO GO BACK TO THE MENU");
+        cleanStdin();
+        getchar();
+        system("clear");
+        return;
+    }
+
+    struct tm *dateToday;
+    time_t dayT;
+    time(&dayT);
+    dateToday = localtime(&dayT);
+
+    int i;
+    int page = 1;
+    int totalPages = (size + 14) / 15;
+
+	cleanStdin();
+    printf("\tInventory control - Price list - %d/%d/%d\n", dateToday->tm_mday, \
+    dateToday->tm_mon + 1, dateToday->tm_year + 1900);
+    printf("==========================================================================\n");
+    printf("\tCode\tName\t\t\t\t\t\tPrice\n");
+    printf("--------------------------------------------------------------------------\n");
+
+    for (i = 0; i < size; i++) {
+        printf("\t%ld\t%-45s R$ %.2f\n", \
+        inventory[i].productCode, inventory[i].name, inventory[i].productSellPrice);
+
+        if ((i + 1) % 15 == 0 && i + 1 < size) {
+            // If has more than 15 products to display, it waits the use action
+            printf("\nTYPE ANY KEY TO CONTINUE\n");
+            getchar();
+            system("clear");
+
+            printf("\tInventory control - Price list - %d/%d/%d\n", dateToday->tm_mday, \
+            dateToday->tm_mon + 1, dateToday->tm_year + 1900);
+            printf("==========================================================================\n");
+            printf("Code  Name                                        Price\n");
+            printf("--------------------------------------------------------------------------\n");
+            page++;
+        }
+    }
+
+    printf("\n==========================================================================\n");
+    printf("\nPage %d of %d\n", page, totalPages);
+
+    printf("\nTYPE ENTER TO GO BACK TO THE MENU");
+    getchar();
+    system("clear");
+    return;
+}
+
 
 void changeProduct(Tproduct inventory[], int size){
 
@@ -495,8 +564,8 @@ void changeProduct(Tproduct inventory[], int size){
     printf(" 8 - SELL PRICE\n");
     printf(" 9 - MINIMAL PROFIT MARGIN\n");
     printf(" 10 - MINIMAL PRODUCT QUANTITY FOR THE INVENTORY\n");
-    printf(" 11 - EXPIRATION DATE\n");
-    printf(" 12 - ALL THE OPTIONS ABOVE\n");
+    //printf(" 11 - EXPIRATION DATE\n");
+    //printf(" 12 - ALL THE OPTIONS ABOVE\n");
     printf(" 0 - EXIT\n");
     printf("\nCHOOSE THE DESIRED OPTION TO EDIT:\n");
     scanf("%d",&opt);
@@ -551,12 +620,12 @@ void changeProduct(Tproduct inventory[], int size){
         printf("Type the new minimal quantity of the product necessary to be in the inventory: ");
         scanf("%d", &inventory[position].inventoryMin);
     break;
-    case 11:
+    /*case 11:
         changeExpiredMenu(inventory, size);
         break;
-    case 12:
+    case 11:
         changeFunction(inventory, size);
-        break;
+        break;*/
     case 0:
         return;
         break;
@@ -646,9 +715,9 @@ void consultProduct(Tproduct inventory[], int size){
     printf("Unit: %s\n", inventory[position].productUnit);
     printf("Supplier: %s\n", inventory[position].productSupplier);
     printf("Quantity in inventory: %.d\n", inventory[position].productQuantity);
-    printf("Buy Price: %.2f\n", inventory[position].productBuyPrice);
-    printf("Sell Price: %.2f\n", inventory[position].productSellPrice);
-    printf("Minimal profit margin: %.2f\n", inventory[position].productMinimalProfit);
+    printf("Buy Price: R$ %.2f\n", inventory[position].productBuyPrice);
+    printf("Sell Price: R$ %.2f\n", inventory[position].productSellPrice);
+    printf("Minimal profit margin: R$ %.2f\n", inventory[position].productMinimalProfit);
     printf("Minimal product quantity in inventory: %d\n", inventory[position].inventoryMin);
     printf("Expiration date: %d/%d/%d\n", inventory[position].expiredDate.tm_mday, \
     inventory[position].expiredDate.tm_mon, inventory[position].expiredDate.tm_year);
@@ -661,7 +730,53 @@ void consultProduct(Tproduct inventory[], int size){
     return;
 }
 
+int consultProductByName(Tproduct inventory[], int size) {
+    char name[41];
+    int productsFound = 0;
+
+    printf("Type the name of the searched product: ");
+    cleanStdin();
+    fgets(name, sizeof(name), stdin);
+    name[strcspn(name, "\n")] = '\0';
+
+    printf("Products found with the name '%s':\n", name);
+	
+	int i;
+    for (i = 0; i < size; i++) {
+        if (strcmp(inventory[i].name, name) == 0) {
+            printf("\n--------------------------------------------------------------------------\n");
+            printf("Code: %ld\n", inventory[i].productCode);
+            printf("Name: %s\n", inventory[i].name);
+            printf("Group: %d\n", inventory[i].productGroup);
+            printf("Description: %s\n", inventory[i].productDescription);
+            printf("Unit: %s\n", inventory[i].productUnit);
+            printf("Supplier: %s\n", inventory[i].productSupplier);
+            printf("Quantity in inventory: %.d\n", inventory[i].productQuantity);
+            printf("Buy Price: R$ %.2f\n", inventory[i].productBuyPrice);
+            printf("Sell Price: R$ %.2f\n", inventory[i].productSellPrice);
+            printf("Minimal profit margin: R$ %.2f\n", inventory[i].productMinimalProfit);
+            printf("Minimal product quantity in inventory: %d\n", inventory[i].inventoryMin);
+            printf("Expiration date: %d/%d/%d\n", inventory[i].expiredDate.tm_mday, \
+            inventory[i].expiredDate.tm_mon, inventory[i].expiredDate.tm_year);
+            printf("--------------------------------------------------------------------------\n");
+            productsFound++;
+        }
+    }
+
+    if (productsFound == 0) {
+        printf("\nPRODUCT NOT FOUND!\n");
+    }
+
+    printf("\nTYPE ENTER TO GO BACK TO THE MENU");
+    cleanStdin();
+    getchar();
+    system("clear");
+
+    return productsFound;
+}
+
 void reportMinimalInventory(Tproduct inventory[], int size){
+
     if (size == 0) {
         printf("\tEMPTY INVENTORY!!\n");
         printf("\nTYPE ENTER TO GO BACK TO THE MENU");
@@ -681,18 +796,19 @@ void reportMinimalInventory(Tproduct inventory[], int size){
                 printf("There are products bellow the minimal quantity!\n\n");
             }
 
-            printf("Products bellow the minimal quantity in the inventory:\n");
-            cleanStdin();
+            printf("--------------------------------------------------------------------------\n");
             printf("Code: %ld \n", inventory[i].productCode);
+            printf("Name: %s \n", inventory[i].name);
             printf("Group: %d\n", inventory[i].productGroup);
             printf("Description: %s\n", inventory[i].productDescription);
             printf("Unit: %s\n", inventory[i].productUnit);
             printf("Supplier: %s\n", inventory[i].productSupplier);
             printf("Quantity in inventory: %d\n", inventory[i].productQuantity);
-            printf("Buy price: %.2f\n", inventory[i].productBuyPrice);
-            printf("Sell price: %.2f\n", inventory[i].productSellPrice);
-            printf("Minimal margin profit: %.2f\n", inventory[i].productMinimalProfit);
+            printf("Buy price: R$ %.2f\n", inventory[i].productBuyPrice);
+            printf("Sell price: R$ %.2f\n", inventory[i].productSellPrice);
+            printf("Minimal margin profit: R$ %.2f\n", inventory[i].productMinimalProfit);
             printf("Minimal quantity in inventory: %d\n", inventory[i].inventoryMin);
+            printf("--------------------------------------------------------------------------\n");
             printf("\n");
             productFound++;
         }
@@ -708,6 +824,7 @@ void reportMinimalInventory(Tproduct inventory[], int size){
     system("clear");
     return;
 }
+
 
 void increaseSupplierPrices(Tproduct inventory[], int size){
 
@@ -744,7 +861,7 @@ void increaseSupplierPrices(Tproduct inventory[], int size){
             cleanStdin();
             scanf("%c", &opt);
             
-            if(opt == 'y' || opt == 'Y'){
+            if(toupper(opt) == 'Y'){
                 inventory[i].productBuyPrice = newProductBuyPrice;
                 alteredProducts++;
                 printf("Increase in the buy price of the product with the code %ld.\n", \
@@ -768,73 +885,21 @@ void increaseSupplierPrices(Tproduct inventory[], int size){
     return;
 }
 
-void expired(Tproduct inventory[], int size){
 
+void espMenu(Tproduct inventory[], int size){
+    
     struct tm *date;
     time_t dayT;
     time(&dayT);
     date = localtime(&dayT);
-    
-    if (size == 0){
-        printf("EMPTY INVENTORY!!\n");
-        printf("\nTYPE ENTER TO GO BACK TO THE MENU");
-	    cleanStdin();
-	    getchar();
-	    system("clear");
-        return;
-    }
-
-    int i;
-    int productsFound = 0;
-
-    printf("Products that expired:\n");
-
-    for (i = 0; i < size; i++){
-        if(inventory[i].expiredDate.tm_mday < date->tm_mday \
-        && inventory[i].expiredDate.tm_mon < date->tm_mon + 1\
-        || inventory[i].expiredDate.tm_year < date->tm_year + 1900){
-            printf("\n--------------------------------------------------------------------------\n");
-            printf("Code: %ld \n", inventory[i].productCode);
-            printf("Name: %s \n", inventory[i].name);
-            printf("Group: %d\n", inventory[i].productGroup);
-            printf("Description: %s\n", inventory[i].productDescription);
-            printf("Unit: %s\n", inventory[i].productUnit);
-            printf("Supplier: %s\n", inventory[i].productSupplier);
-            printf("Quantity in inventory: %d\n", inventory[i].productQuantity);
-            printf("Buy price : %.2f\n", inventory[i].productBuyPrice);
-            printf("Sell price: %.2f\n", inventory[i].productSellPrice);
-            printf("Minimal profit margin: %.2f\n", inventory[i].productMinimalProfit);
-            printf("Minimal product quantity in inventory: %d\n", inventory[i].inventoryMin);
-            printf("Expiration date: %d/%d/%d\n", inventory[i].expiredDate.tm_mday, \
-            inventory[i].expiredDate.tm_mon, inventory[i].expiredDate.tm_year);
-            printf("--------------------------------------------------------------------------\n");
-            printf("\n");
-            productsFound++;
-        }
-    }
-
-    printf("TYPE ENTER TO GO BACK TO THE MENU\n");
-    cleanStdin();
-    getchar();
-    system("clear");
-    return;
-}
-
-void espMenu(){
-    
-    Tproduct inventory[MAX];
-    struct tm *date;
-    time_t dayT;
-    time(&dayT);
-    date = localtime(&dayT);
-    int size = 0, opt;
+    int opt;
 
     do{
         printf("Today is: %d/%d/%d\n", date->tm_mday, date->tm_mon + 1, date->tm_year + 1900);
 		printf("\n===== SPECIAL REPORTS =====\n");
 		printf("1 - REPORTS OF PRODUCTS BELLOW THE MINIMAL QUANTITY : \n");
         printf("2 - INCREASE THE BUY PRICE OF PRODUCTS FROM A SUPPLIER\n");
-        printf("3 - REPORT WITH EXPIRED PRODUCTS\n");
+        printf("3 - REPORT WITH EXPIRED PRODUCTS (TESTING - NOT WORKING CORRECTLY YET)\n");
 		printf("0 - GO BACK TO MAIN MENU\n");
 		printf("Choose an options: ");
 		scanf("%d", &opt);
@@ -849,7 +914,7 @@ void espMenu(){
 				writeFile(inventory, size);
                 break;
             case 3:
-                expired(inventory, size);
+                reportExpiredProduct(inventory, size);
                 break;
 			case 0:
                 return;
@@ -861,41 +926,50 @@ void espMenu(){
 		} while (opt != 0);
 }
 
-
+/*
 void changeExpiredMenu(Tproduct inventory[], int size){
 
-    int opt;
+    int opt, position;
 
     printf("Type the option to edit the expired date:\n");
     printf("1 - Day ");
-    printf("2 - Mounth");
+    printf("2 - Month");
     printf("3 - Year");
     printf("4 - The 3 choises");
     scanf("%d", & opt);
     switch (opt){
         case 1:
-            
+                printf("Type: ");
+                scanf("%d", &inventory[position].expiredDate.tm_mday);
             break;
         case 2:
-
+                printf("Type the new group that the product belongs: ");
+                scanf("%d", &inventory[position].expiredDate.tm_mon);
             break;
         case 3:
-
+                printf("Type the new group that the product belongs: ");
+                scanf("%d", &inventory[position].expiredDate.tm_year);
             break;
         case 4:
-            getExpiredDate();
+                printf("Type the new group that the product belongs: ");
+                scanf("%d", &inventory[position].expiredDate.tm_mday);
+                printf("Type the new group that the product belongs: ");
+                scanf("%d", &inventory[position].expiredDate.tm_mon);
+                printf("Type the new group that the product belongs: ");
+                scanf("%d", &inventory[position].expiredDate.tm_year);
+                cleanStdin();
             break;
         default:
             printf("INVALID OPTION!!\n\n");
     }
-}
+}*/
 
 void listReport(Tproduct inventory[], int index){
     printf("%ld\t\t\t\t%.2f\n", inventory[index].productCode, \
     inventory[index].productSellPrice);
 }
 
-void changeFunction(Tproduct inventory[], int size){
+/*void changeFunction(Tproduct inventory[], int size){
     
     int position;
 
@@ -938,6 +1012,69 @@ void changeFunction(Tproduct inventory[], int size){
     scanf("%d", &inventory[position].inventoryMin);
 
     changeExpiredMenu(inventory, size);
+}*/
+
+void reportExpiredProduct(Tproduct inventory[], int size){
+
+    struct tm *date;
+    time_t dayT;
+    time(&dayT);
+    date = localtime(&dayT);
+
+    if (size == 0) {
+        printf("\tEMPTY INVENTORY!!\n");
+        printf("\nTYPE ENTER TO GO BACK TO THE MENU");
+        cleanStdin();
+        getchar();
+        system("clear");
+        return;
+    }
+
+    int i;
+    int productFound = 0;
+
+        // This part has a little problem were in previous months, \
+        if number of the day is bigger than the current day, WON
+    for (i = 0; i < size; i++) {
+        if(inventory[i].expiredDate.tm_year <= date->tm_year + 1900 \
+        && inventory[i].expiredDate.tm_mon <= date->tm_mon + 1 \
+        && inventory[i].expiredDate.tm_mday <= date->tm_mday \
+        || inventory[i].expiredDate.tm_year <= date->tm_year + 1900 \
+        && inventory[i].expiredDate.tm_mon < date->tm_mon + 1 \
+        && inventory[i].expiredDate.tm_mday >= date->tm_mday){
+            
+            if (productFound == 0) {
+                cleanStdin();
+                printf("There are products that expired!!\n\n");
+            }
+        printf("--------------------------------------------------------------------------\n");
+        printf("Code: %ld \n", inventory[i].productCode);
+        printf("Group: %d\n", inventory[i].productGroup);
+        printf("Description: %s\n", inventory[i].productDescription);
+        printf("Unit: %s\n", inventory[i].productUnit);
+        printf("Supplier: %s\n", inventory[i].productSupplier);
+        printf("Quantity in inventory: %d\n", inventory[i].productQuantity);
+        printf("Buy price: %.2f\n", inventory[i].productBuyPrice);
+        printf("Sell price: %.2f\n", inventory[i].productSellPrice);
+        printf("Minimal margin profit: %.2f\n", inventory[i].productMinimalProfit);
+        printf("Minimal quantity in inventory: %d\n", inventory[i].inventoryMin);
+        printf("Expiration date: %d/%d/%d\n", inventory[i].expiredDate.tm_mday, \
+        inventory[i].expiredDate.tm_mon, inventory[i].expiredDate.tm_year);
+        printf("--------------------------------------------------------------------------\n");    
+        printf("\n");
+        productFound++;
+        }
+    }
+    
+    if (productFound == 0) {
+        cleanStdin();
+        printf("No product is expired!\n\n");
+    }
+
+    printf("TYPE ENTER TO GO BACK TO THE MENU");
+    getchar();
+    system("clear");
+    return;
 }
 
 void cleanStdin(void){
