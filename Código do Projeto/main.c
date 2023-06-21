@@ -848,7 +848,7 @@ void increaseSupplierPrices(Tproduct inventory[], int size){
         if(strcmp(inventory[i].productSupplier, productSupplier) == 0){
             printf("\nProduct found:\n");
             printf("Code: %ld\n", inventory[i].productCode);
-            printf("Name: %s", inventory[i].name);
+            printf("Name: %s\n", inventory[i].name);
             printf("Description: %s\n", inventory[i].productDescription);
             printf("Current product buy price: R$ %.2f\n", inventory[i].productBuyPrice);
             
@@ -897,9 +897,9 @@ void espMenu(Tproduct inventory[], int size){
     do{
         printf("Today is: %d/%d/%d\n", date->tm_mday, date->tm_mon + 1, date->tm_year + 1900);
 		printf("\n===== SPECIAL REPORTS =====\n");
-		printf("1 - REPORTS OF PRODUCTS BELLOW THE MINIMAL QUANTITY : \n");
+		printf("1 - REPORTS OF PRODUCTS BELLOW THE MINIMAL QUANTITY \n");
         printf("2 - INCREASE THE BUY PRICE OF PRODUCTS FROM A SUPPLIER\n");
-        printf("3 - REPORT WITH EXPIRED PRODUCTS (TESTING - NOT WORKING CORRECTLY YET)\n");
+        printf("3 - REPORT WITH EXPIRED PRODUCTS\n");
 		printf("0 - GO BACK TO MAIN MENU\n");
 		printf("Choose an options: ");
 		scanf("%d", &opt);
@@ -1034,7 +1034,8 @@ void reportExpiredProduct(Tproduct inventory[], int size){
     int productFound = 0;
 
         // This part has a little problem were in previous months, \
-        if number of the day is bigger than the current day, WON
+        if number of the day is bigger than the current day, wont be showing up \
+        Tried to fix here but didnt work what i wanted
     for (i = 0; i < size; i++) {
         if(inventory[i].expiredDate.tm_year <= date->tm_year + 1900 \
         && inventory[i].expiredDate.tm_mon <= date->tm_mon + 1 \
@@ -1061,7 +1062,6 @@ void reportExpiredProduct(Tproduct inventory[], int size){
         printf("Expiration date: %d/%d/%d\n", inventory[i].expiredDate.tm_mday, \
         inventory[i].expiredDate.tm_mon, inventory[i].expiredDate.tm_year);
         printf("--------------------------------------------------------------------------\n");    
-        printf("\n");
         productFound++;
         }
     }
