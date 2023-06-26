@@ -709,7 +709,7 @@ void consultProduct(Tproduct inventory[], int size){
 
     printf("\n--------------------------------------------------------------------------\n");
     printf("Code: %ld\n", inventory[position].productCode);
-    printf("Name: %s", inventory[position].name);
+    printf("Name: %s\n", inventory[position].name);
     printf("Group: %d\n", inventory[position].productGroup);
     printf("Description: %s\n", inventory[position].productDescription);
     printf("Unit: %s\n", inventory[position].productUnit);
@@ -1035,7 +1035,7 @@ void reportExpiredProduct(Tproduct inventory[], int size){
 
         // This part has a little problem were in previous months, \
         if number of the day is bigger than the current day, wont be showing up \
-        Tried to fix here but didnt work what i wanted
+        Tried to fix here but didnt work what i wanted (fixed)
     for (i = 0; i < size; i++) {
         if(inventory[i].expiredDate.tm_year <= date->tm_year + 1900 \
         && inventory[i].expiredDate.tm_mon <= date->tm_mon + 1 \
